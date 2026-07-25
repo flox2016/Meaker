@@ -719,11 +719,11 @@ async function confirmarCodigo() {
 
 async function crearUsuarioCompanero(gmail) {
   // ¿ya existe?
-  const { data: existentes } = await sb.from("usuarios").select("*").eq("gmail", gmail).limit(1);
+  const { data: existentes } = await sb.from("usuarios").select("*").eq("email", gmail).limit(1);
 
   if (!existentes || existentes.length === 0) {
     await sb.from("usuarios").insert({
-      gmail: gmail,
+      email: gmail,
       tipo: "companero",
       estado: "pendiente",
     });
