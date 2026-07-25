@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meaker · Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --naranja: #FF751F;
+    --naranja-oscuro: #D9590F;
+    --durazno: #F7AE84;
+    --fondo: #100D0B;
+    --fondo-panel: #1B1613;
+    --fondo-card: #241C18;
+    --texto: #F7F1EC;
+    --texto-tenue: #B8ACA3;
+    --borde: #362B25;
+    --exito: #4CAF50;
+    --error: #E5484D;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background: var(--fondo);
+    color: var(--texto);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+  }
+  .display{font-family:'Archivo Black', sans-serif;}
+  button{font-family:inherit; cursor:pointer; border:none;}
+  input, select, textarea{font-family:inherit;}
+  .oculto{display:none !important;}
+
+  .pantalla-pin{
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+    background: radial-gradient(ellipse at 50% 30%, #241a12 0%, var(--fondo) 65%);
+  }
+  .tarjeta{
+    background: var(--fondo-panel);
+    border:1px solid var(--borde);
+    border-radius:16px;
+    padding:38px 32px;
+    width:100%;
+    max-width:360px;
+    text-align:center;
+  }
+  .tarjeta .display{ font-size:20px; margin-bottom:8px; }
+  .tarjeta p{ color:var(--texto-tenue); font-size:13.5px; margin-bottom:22px; }
+  .campo{
+    width:100%;
+    background:var(--fondo-card);
+    border:1px solid var(--borde);
+    color:var(--texto);
+    padding:13px 16px;
+    border-radius:10px;
+    font-size:15px;
+    margin-bottom:14px;
+    outline:none;
+    text-align:center;
+    letter-spacing:6px;
+  }
+  .campo:focus{ border-color: var(--naranja); }
+  .btn{
+    width:100%;
+    padding:13px;
+    border-radius:10px;
+    font-weight:700;
+    font-size:14px;
+    background: linear-gradient(135deg, var(--naranja), var(--naranja-oscuro));
+    color:#fff;
+  }
+  .btn:hover{ opacity:0.92; }
+  .mensaje-error{ color:var(--error); font-size:13px; margin-bottom:10px; min-height:16px; }
+
+  .header-panel{
+    position:sticky; top:0; z-index:20;
+    background: rgba(16,13,11,0.94);
+    backdrop-filter: blur(8px);
+    border-bottom:1px solid var(--borde);
+    padding:16px 28px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .header-panel .marca{ font-size:18px; letter-spacing:1px; }
+  .marca .punto{ color:var(--naranja); }
+  .btn-chico{
+    padding:8px 14px; border-radius:8px; font-size:12.5px; font-weight:600;
+    background:var(--fondo-card); border:1px solid var(--borde); color:var(--texto);
+  }
+  .btn-chico:hover{ border-color: var(--naranja); color:var(--naranja); }
+  .btn-chico.rojo:hover{ border-color: var(--error); color: var(--error); }
+  .btn-chico.verde:hover{ border-color: var(--exito); color: var(--exito); }
+
+  .contenido-panel{ width:100%; max-width:1100px; margin:0 auto; padding:32px 24px 80px; }
+  .tabs{ display:flex; gap:8px; margin-bottom:26px; flex-wrap:wrap; }
+  .tab{
+    padding:9px 16px; border-radius:20px; font-size:13px; font-weight:600;
+    background:var(--fondo-card); border:1px solid var(--borde); color:var(--texto-tenue);
+    display:flex; align-items:center; gap:6px;
+  }
+  .tab.activo{ background:var(--naranja); color:#fff; border-color:var(--naranja); }
+  .badge{
+    background:var(--error); color:#fff; font-size:10px; font-weight:700;
+    padding:1px 6px; border-radius:10px;
+  }
+  .seccion-titulo{ font-size:19px; margin-bottom:14px; }
+  .vacio{
+    color:var(--texto-tenue); font-size:13.5px; padding:22px; text-align:center;
+    border:1px dashed var(--borde); border-radius:12px; margin-bottom:30px;
+  }
+  .lista{ display:flex; flex-direction:column; gap:10px; margin-bottom:36px; }
+  .fila{
+    background:var(--fondo-card); border:1px solid var(--borde); border-radius:12px;
+    padding:14px 16px; display:flex; align-items:center; justify-content:space-between;
+    gap:12px; flex-wrap:wrap;
+  }
+  .fila .info{ display:flex; flex-direction:column; gap:2px; }
+  .fila .info .principal{ font-size:14px; font-weight:600; }
+  .fila .info .secundario{ font-size:12px; color:var(--texto-tenue); }
+  .fila .acciones{ display:flex; gap:8px; flex-wrap:wrap; }
+  .etiqueta{
+    font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:20px;
+    text-transform:uppercase; letter-spacing:0.4px;
+  }
+  .etiqueta.pendiente{ background:rgba(255,117,31,0.18); color:var(--naranja); }
+  .etiqueta.aprobado{ background:rgba(76,175,80,0.18); color:var(--exito); }
+  .etiqueta.rechazado{ background:rgba(229,72,77,0.18); color:var(--error); }
+  .etiqueta.pagado{ background:rgba(122,122,255,0.18); color:#9a9aff; }
+  .etiqueta.inactivo{ background:rgba(184,172,163,0.18); color:var(--texto-tenue); }
+
+  .form-box{
+    background:var(--fondo-panel); border:1px solid var(--borde); border-radius:14px;
+    padding:22px; margin-bottom:30px; max-width:520px;
+  }
+  .form-box h3{ font-size:15px; margin-bottom:16px; }
+  select.campo-form, textarea.campo-form, input.campo-form{
+    width:100%; background:var(--fondo-card); border:1px solid var(--borde); color:var(--texto);
+    padding:12px 14px; border-radius:10px; font-size:14px; margin-bottom:12px; outline:none;
+    text-align:left; letter-spacing:normal;
+  }
+  textarea.campo-form{ resize:vertical; min-height:80px; }
+
+  @media (max-width:640px){
+    .header-panel{ padding:14px 16px; }
+    .contenido-panel{ padding:24px 14px 60px; }
+    .fila{ flex-direction:column; align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ PANTALLA: PIN ============ -->
+<div id="screen-pin" class="pantalla-pin">
+  <div class="tarjeta">
+    <div class="display">Panel Admin</div>
+    <p>Ingresá el PIN para entrar.</p>
+    <input type="password" id="input-pin" class="campo" placeholder="••••" maxlength="6" inputmode="numeric">
+    <div class="mensaje-error" id="error-pin"></div>
+    <button class="btn" onclick="verificarPin()">Entrar</button>
+  </div>
+</div>
+
+<!-- ============ PANEL ADMIN ============ -->
+<div id="screen-admin" class="oculto">
+  <div class="header-panel">
+    <div class="marca display">MEAKER <span class="punto">·</span> <span style="font-size:12px; font-weight:400; color:var(--texto-tenue);">Admin</span></div>
+    <div>
+      <button class="btn-chico" onclick="location.reload()">Salir</button>
+    </div>
+  </div>
+  <div class="contenido-panel">
+    <div class="tabs">
+      <button class="tab activo" data-tab="tab-pendientes" onclick="mostrarTab('tab-pendientes', this)">
+        Pendientes <span class="badge oculto" id="badge-pendientes">0</span>
+      </button>
+      <button class="tab" data-tab="tab-usuarios" onclick="mostrarTab('tab-usuarios', this)">Usuarios</button>
+      <button class="tab" data-tab="tab-contenido" onclick="mostrarTab('tab-contenido', this)">Contenido</button>
+      <button class="tab" data-tab="tab-notificar" onclick="mostrarTab('tab-notificar', this)">Notificar</button>
+    </div>
+
+    <div id="tab-pendientes">
+      <div class="seccion-titulo">Compañeros esperando aprobación</div>
+      <div class="lista" id="lista-pendientes"></div>
+    </div>
+
+    <div id="tab-usuarios" class="oculto">
+      <div class="seccion-titulo">Todos los usuarios</div>
+      <div class="lista" id="lista-usuarios"></div>
+    </div>
+
+    <div id="tab-contenido" class="oculto">
+      <div class="seccion-titulo">Series y episodios</div>
+      <div class="lista" id="lista-episodios"></div>
+      <div class="seccion-titulo">Canales en vivo</div>
+      <div class="lista" id="lista-canales"></div>
+    </div>
+
+    <div id="tab-notificar" class="oculto">
+      <div class="seccion-titulo">Mandar notificación</div>
+      <div class="form-box">
+        <select class="campo-form" id="notif-usuario"></select>
+        <textarea class="campo-form" id="notif-mensaje" placeholder="Escribí el mensaje…"></textarea>
+        <button class="btn" onclick="mandarNotificacion()">Mandar notificación</button>
+        <div class="mensaje-error" id="error-notif"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   MEAKER ADMIN — lógica del panel del Jefe
+   ============================================================ */
+
+const SUPABASE_URL = "https://flkjwpcypihdkiyblucs.supabase.co";
+const SUPABASE_KEY = "sb_publishable_u7n8Y8_cjU78pgqlSVkG6w_FO2K99Q2";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const PIN_ADMIN = "1310";
+
+function verificarPin() {
+  const valor = document.getElementById("input-pin").value.trim();
+  if (valor === PIN_ADMIN) {
+    document.getElementById("screen-pin").classList.add("oculto");
+    document.getElementById("screen-admin").classList.remove("oculto");
+    cargarTodo();
+  } else {
+    document.getElementById("error-pin").textContent = "PIN incorrecto.";
+    document.getElementById("input-pin").value = "";
+  }
+}
+
+function mostrarTab(idTab, boton) {
+  document.querySelectorAll(".tab").forEach((t) => t.classList.remove("activo"));
+  boton.classList.add("activo");
+  document.querySelectorAll(".contenido-panel > div[id^='tab-']").forEach((d) => d.classList.add("oculto"));
+  document.getElementById(idTab).classList.remove("oculto");
+}
+
+function escapeHTML(str) {
+  const div = document.createElement("div");
+  div.textContent = str || "";
+  return div.innerHTML;
+}
+
+async function cargarTodo() {
+  await Promise.all([
+    cargarPendientes(),
+    cargarUsuarios(),
+    cargarContenido(),
+    cargarSelectNotificacion(),
+  ]);
+}
+
+// ============================================================
+// PENDIENTES
+// ============================================================
+async function cargarPendientes() {
+  const cont = document.getElementById("lista-pendientes");
+  const badge = document.getElementById("badge-pendientes");
+  cont.innerHTML = "<p class='vacio'>Cargando…</p>";
+
+  const { data, error } = await sb
+    .from("usuarios")
+    .select("*")
+    .eq("tipo", "companero")
+    .eq("estado", "pendiente")
+    .order("creado_en", { ascending: true });
+
+  if (error) {
+    cont.innerHTML = "<div class='vacio'>Hubo un error cargando los pendientes.</div>";
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    cont.innerHTML = "<div class='vacio'>No hay compañeros esperando aprobación.</div>";
+    badge.classList.add("oculto");
+    return;
+  }
+
+  badge.textContent = data.length;
+  badge.classList.remove("oculto");
+
+  cont.innerHTML = data
+    .map(
+      (u) => `
+    <div class="fila">
+      <div class="info">
+        <div class="principal">${escapeHTML(u.gmail)}</div>
+        <div class="secundario">Pidió sumarse el ${new Date(u.creado_en).toLocaleString("es-AR")}</div>
+      </div>
+      <div class="acciones">
+        <button class="btn-chico verde" onclick="aprobarUsuario('${u.id}')">Aprobar</button>
+        <button class="btn-chico rojo" onclick="rechazarUsuario('${u.id}')">Rechazar</button>
+      </div>
+    </div>`
+    )
+    .join("");
+}
+
+async function aprobarUsuario(id) {
+  await sb.from("usuarios").update({ estado: "aprobado" }).eq("id", id);
+  await cargarTodo();
+}
+
+async function rechazarUsuario(id) {
+  await sb.from("usuarios").update({ estado: "rechazado" }).eq("id", id);
+  await cargarTodo();
+}
+
+// ============================================================
+// USUARIOS (todos)
+// ============================================================
+async function cargarUsuarios() {
+  const cont = document.getElementById("lista-usuarios");
+  cont.innerHTML = "<p class='vacio'>Cargando…</p>";
+
+  const { data, error } = await sb.from("usuarios").select("*").order("creado_en", { ascending: false });
+
+  if (error) {
+    cont.innerHTML = "<div class='vacio'>Hubo un error cargando los usuarios.</div>";
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    cont.innerHTML = "<div class='vacio'>Todavía no hay usuarios registrados.</div>";
+    return;
+  }
+
+  cont.innerHTML = data
+    .map((u) => {
+      const claseEstado = u.tipo === "pagado" ? "pagado" : u.estado;
+      const textoEstado = u.tipo === "pagado" ? "pagado" : u.estado;
+      return `
+    <div class="fila">
+      <div class="info">
+        <div class="principal">${escapeHTML(u.gmail)}
+          <span class="etiqueta ${claseEstado}">${textoEstado}</span>
+          ${!u.activo ? '<span class="etiqueta inactivo">inactivo</span>' : ""}
+        </div>
+        <div class="secundario">Tipo: ${u.tipo} · Registrado el ${new Date(u.creado_en).toLocaleDateString("es-AR")}</div>
+      </div>
+      <div class="acciones">
+        ${
+          u.activo
+            ? `<button class="btn-chico rojo" onclick="banearUsuario('${u.id}')">Banear</button>`
+            : `<button class="btn-chico verde" onclick="reactivarUsuario('${u.id}')">Reactivar</button>`
+        }
+        <button class="btn-chico rojo" onclick="eliminarUsuario('${u.id}')">Eliminar</button>
+      </div>
+    </div>`;
+    })
+    .join("");
+}
+
+async function banearUsuario(id) {
+  await sb.from("usuarios").update({ activo: false }).eq("id", id);
+  await cargarTodo();
+}
+
+async function reactivarUsuario(id) {
+  await sb.from("usuarios").update({ activo: true }).eq("id", id);
+  await cargarTodo();
+}
+
+async function eliminarUsuario(id) {
+  if (!confirm("¿Seguro que querés eliminar este usuario? No se puede deshacer.")) return;
+  await sb.from("usuarios").delete().eq("id", id);
+  await cargarTodo();
+}
+
+// ============================================================
+// CONTENIDO (episodios y canales)
+// ============================================================
+async function cargarContenido() {
+  const contEp = document.getElementById("lista-episodios");
+  const contCanales = document.getElementById("lista-canales");
+  contEp.innerHTML = "<p class='vacio'>Cargando…</p>";
+  contCanales.innerHTML = "<p class='vacio'>Cargando…</p>";
+
+  const { data: series } = await sb.from("series").select("*");
+  const { data: temporadas } = await sb.from("temporadas").select("*");
+  const { data: episodios } = await sb.from("episodios").select("*").order("creado_en", { ascending: false });
+  const { data: canales } = await sb.from("canales").select("*").order("creado_en", { ascending: false });
+
+  const mapaSeries = {};
+  (series || []).forEach((s) => (mapaSeries[s.id] = s));
+  const mapaTemporadas = {};
+  (temporadas || []).forEach((t) => (mapaTemporadas[t.id] = t));
+
+  if (!episodios || episodios.length === 0) {
+    contEp.innerHTML = "<div class='vacio'>Todavía no hay episodios cargados.</div>";
+  } else {
+    contEp.innerHTML = episodios
+      .map((ep) => {
+        const temp = mapaTemporadas[ep.temporada_id];
+        const serie = temp ? mapaSeries[temp.serie_id] : null;
+        const nombreSerie = serie ? serie.nombre : "Serie eliminada";
+        const numTemp = temp ? temp.numero : "?";
+        return `
+      <div class="fila">
+        <div class="info">
+          <div class="principal">${escapeHTML(nombreSerie)} — T${numTemp} · E${ep.numero}: ${escapeHTML(ep.titulo)}
+            ${!ep.publicado ? '<span class="etiqueta rechazado">oculto</span>' : ""}
+          </div>
+          <div class="secundario">${escapeHTML(ep.descripcion || "")}</div>
+        </div>
+        <div class="acciones">
+          <button class="btn-chico" onclick="ocultarMostrarEpisodio('${ep.id}', ${ep.publicado})">
+            ${ep.publicado ? "Ocultar" : "Publicar"}
+          </button>
+          <button class="btn-chico rojo" onclick="eliminarEpisodio('${ep.id}')">Borrar</button>
+        </div>
+      </div>`;
+      })
+      .join("");
+  }
+
+  if (!canales || canales.length === 0) {
+    contCanales.innerHTML = "<div class='vacio'>Todavía no hay canales en vivo.</div>";
+  } else {
+    contCanales.innerHTML = canales
+      .map(
+        (c) => `
+      <div class="fila">
+        <div class="info">
+          <div class="principal">${escapeHTML(c.nombre)} ${!c.activo ? '<span class="etiqueta inactivo">inactivo</span>' : ""}</div>
+          <div class="secundario">${escapeHTML(c.url)}</div>
+        </div>
+        <div class="acciones">
+          <button class="btn-chico" onclick="ocultarMostrarCanal('${c.id}', ${c.activo})">
+            ${c.activo ? "Ocultar" : "Publicar"}
+          </button>
+          <button class="btn-chico rojo" onclick="eliminarCanal('${c.id}')">Borrar</button>
+        </div>
+      </div>`
+      )
+      .join("");
+  }
+}
+
+async function ocultarMostrarEpisodio(id, publicadoActual) {
+  await sb.from("episodios").update({ publicado: !publicadoActual }).eq("id", id);
+  await cargarContenido();
+}
+
+async function eliminarEpisodio(id) {
+  if (!confirm("¿Borrar este episodio? No se puede deshacer.")) return;
+  await sb.from("episodios").delete().eq("id", id);
+  await cargarContenido();
+}
+
+async function ocultarMostrarCanal(id, activoActual) {
+  await sb.from("canales").update({ activo: !activoActual }).eq("id", id);
+  await cargarContenido();
+}
+
+async function eliminarCanal(id) {
+  if (!confirm("¿Borrar este canal? No se puede deshacer.")) return;
+  await sb.from("canales").delete().eq("id", id);
+  await cargarContenido();
+}
+
+// ============================================================
+// NOTIFICACIONES
+// ============================================================
+async function cargarSelectNotificacion() {
+  const select = document.getElementById("notif-usuario");
+  const { data } = await sb.from("usuarios").select("*").order("gmail", { ascending: true });
+
+  if (!data || data.length === 0) {
+    select.innerHTML = "<option value=''>No hay usuarios todavía</option>";
+    return;
+  }
+
+  select.innerHTML = data
+    .map((u) => `<option value="${u.id}">${escapeHTML(u.gmail)} (${u.tipo})</option>`)
+    .join("");
+}
+
+async function mandarNotificacion() {
+  const usuarioId = document.getElementById("notif-usuario").value;
+  const mensaje = document.getElementById("notif-mensaje").value.trim();
+  const error = document.getElementById("error-notif");
+  error.textContent = "";
+
+  if (!usuarioId) {
+    error.textContent = "Elegí un usuario.";
+    return;
+  }
+  if (!mensaje) {
+    error.textContent = "Escribí un mensaje.";
+    return;
+  }
+
+  await sb.from("notificaciones").insert({ usuario_id: usuarioId, mensaje: mensaje });
+
+  document.getElementById("notif-mensaje").value = "";
+  error.style.color = "var(--exito)";
+  error.textContent = "Notificación enviada.";
+  setTimeout(() => {
+    error.textContent = "";
+    error.style.color = "";
+  }, 2000);
+}
+
+</script>
+</body>
+</html>
