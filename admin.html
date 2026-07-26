@@ -267,7 +267,7 @@ async function cargarPendientes() {
   cont.innerHTML = "<p class='vacio'>Cargando…</p>";
 
   const { data, error } = await sb
-    .from("usuarios")
+    .from("meaker_usuarios")
     .select("*")
     .eq("tipo", "companero")
     .eq("estado", "pendiente")
@@ -305,12 +305,12 @@ async function cargarPendientes() {
 }
 
 async function aprobarUsuario(id) {
-  await sb.from("usuarios").update({ estado: "aprobado" }).eq("id", id);
+  await sb.from("meaker_usuarios").update({ estado: "aprobado" }).eq("id", id);
   await cargarTodo();
 }
 
 async function rechazarUsuario(id) {
-  await sb.from("usuarios").update({ estado: "rechazado" }).eq("id", id);
+  await sb.from("meaker_usuarios").update({ estado: "rechazado" }).eq("id", id);
   await cargarTodo();
 }
 
@@ -321,7 +321,7 @@ async function cargarUsuarios() {
   const cont = document.getElementById("lista-usuarios");
   cont.innerHTML = "<p class='vacio'>Cargando…</p>";
 
-  const { data, error } = await sb.from("usuarios").select("*").order("creado_en", { ascending: false });
+  const { data, error } = await sb.from("meaker_usuarios").select("*").order("creado_en", { ascending: false });
 
   if (error) {
     cont.innerHTML = "<div class='vacio'>Hubo un error cargando los usuarios.</div>";
@@ -360,18 +360,18 @@ async function cargarUsuarios() {
 }
 
 async function banearUsuario(id) {
-  await sb.from("usuarios").update({ activo: false }).eq("id", id);
+  await sb.from("meaker_usuarios").update({ activo: false }).eq("id", id);
   await cargarTodo();
 }
 
 async function reactivarUsuario(id) {
-  await sb.from("usuarios").update({ activo: true }).eq("id", id);
+  await sb.from("meaker_usuarios").update({ activo: true }).eq("id", id);
   await cargarTodo();
 }
 
 async function eliminarUsuario(id) {
   if (!confirm("¿Seguro que querés eliminar este usuario? No se puede deshacer.")) return;
-  await sb.from("usuarios").delete().eq("id", id);
+  await sb.from("meaker_usuarios").delete().eq("id", id);
   await cargarTodo();
 }
 
@@ -384,10 +384,10 @@ async function cargarContenido() {
   contEp.innerHTML = "<p class='vacio'>Cargando…</p>";
   contCanales.innerHTML = "<p class='vacio'>Cargando…</p>";
 
-  const { data: series } = await sb.from("series").select("*");
-  const { data: temporadas } = await sb.from("temporadas").select("*");
-  const { data: episodios } = await sb.from("episodios").select("*").order("creado_en", { ascending: false });
-  const { data: canales } = await sb.from("canales").select("*").order("creado_en", { ascending: false });
+  const { data: series } = await sb.from("meaker_series").select("*");
+  const { data: temporadas } = await sb.from("meaker_temporadas").select("*");
+  const { data: episodios } = await sb.from("meaker_episodios").select("*").order("creado_en", { ascending: false });
+  const { data: canales } = await sb.from("meaker_canales").select("*").order("creado_en", { ascending: false });
 
   const mapaSeries = {};
   (series || []).forEach((s) => (mapaSeries[s.id] = s));
@@ -446,24 +446,24 @@ async function cargarContenido() {
 }
 
 async function ocultarMostrarEpisodio(id, publicadoActual) {
-  await sb.from("episodios").update({ publicado: !publicadoActual }).eq("id", id);
+  await sb.from("meaker_episodios").update({ publicado: !publicadoActual }).eq("id", id);
   await cargarContenido();
 }
 
 async function eliminarEpisodio(id) {
   if (!confirm("¿Borrar este episodio? No se puede deshacer.")) return;
-  await sb.from("episodios").delete().eq("id", id);
+  await sb.from("meaker_episodios").delete().eq("id", id);
   await cargarContenido();
 }
 
 async function ocultarMostrarCanal(id, activoActual) {
-  await sb.from("canales").update({ activo: !activoActual }).eq("id", id);
+  await sb.from("meaker_canales").update({ activo: !activoActual }).eq("id", id);
   await cargarContenido();
 }
 
 async function eliminarCanal(id) {
   if (!confirm("¿Borrar este canal? No se puede deshacer.")) return;
-  await sb.from("canales").delete().eq("id", id);
+  await sb.from("meaker_canales").delete().eq("id", id);
   await cargarContenido();
 }
 
@@ -472,7 +472,7 @@ async function eliminarCanal(id) {
 // ============================================================
 async function cargarSelectNotificacion() {
   const select = document.getElementById("notif-usuario");
-  const { data } = await sb.from("usuarios").select("*").order("gmail", { ascending: true });
+  const { data } = await sb.from("meaker_usuarios").select("*").order("gmail", { ascending: true });
 
   if (!data || data.length === 0) {
     select.innerHTML = "<option value=''>No hay usuarios todavía</option>";
@@ -499,7 +499,7 @@ async function mandarNotificacion() {
     return;
   }
 
-  await sb.from("notificaciones").insert({ usuario_id: usuarioId, mensaje: mensaje });
+  await sb.from("meaker_notificaciones").insert({ usuario_id: usuarioId, mensaje: mensaje });
 
   document.getElementById("notif-mensaje").value = "";
   error.style.color = "var(--exito)";
