@@ -635,7 +635,10 @@ async function pedirCodigoCompanero() {
   try {
     const codigo = generarCodigo();
 
-    const { error: errorInsert } = await sb.from("verificaciones").insert({
+    // invalidamos códigos anteriores sin usar de este mismo gmail
+    await sb.from("meaker_verificaciones").update({ usado: true }).eq("gmail", gmail).eq("usado", false);
+
+    const { error: errorInsert } = await sb.from("meaker_verificaciones").insert({
       gmail: gmail,
       codigo: codigo,
       usado: false,
@@ -667,7 +670,7 @@ async function pedirCodigoCompanero() {
 // FLUJO: VERIFICAR CODIGO
 // ============================================================
 async function confirmarCodigo() {
-  const codigoIngresado = document.getElementById("input-codigo").value.trim();
+  const codigoIngresado = document.getElementById("input-codigo").value.trim().replace(/\D/g, "");
   limpiarError("error-codigo");
 
   if (codigoIngresado.length !== 4) {
@@ -681,7 +684,7 @@ async function confirmarCodigo() {
 
   try {
     const { data: verificaciones, error: errorBusqueda } = await sb
-      .from("verificaciones")
+      .from("meaker_verificaciones")
       .select("*")
       .eq("gmail", gmailPendienteVerificacion)
       .eq("usado", false)
@@ -702,12 +705,12 @@ async function confirmarCodigo() {
       return;
     }
 
-    // marcar código como usado
-    await sb.from("verificaciones").update({ usado: true }).eq("id", ultima.id);
-
     if (flujoVerificacion === "companero") {
       await crearUsuarioCompanero(gmailPendienteVerificacion);
     }
+
+    // marcamos como usado recién ahora que todo el proceso terminó bien
+    await sb.from("meaker_verificaciones").update({ usado: true }).eq("id", ultima.id);
   } catch (err) {
     console.error(err);
     mostrarError("error-codigo", "Hubo un error. Probá de nuevo.");
@@ -720,7 +723,7 @@ async function confirmarCodigo() {
 async function crearUsuarioCompanero(gmail) {
   // ¿ya existe?
   const { data: existentes, error: errorBusqueda } = await sb
-    .from("usuarios")
+    .from("meaker_usuarios")
     .select("*")
     .eq("gmail", gmail)
     .limit(1);
@@ -728,7 +731,7 @@ async function crearUsuarioCompanero(gmail) {
   if (errorBusqueda) throw errorBusqueda;
 
   if (!existentes || existentes.length === 0) {
-    const { error: errorInsert } = await sb.from("usuarios").insert({
+    const { error: errorInsert } = await sb.from("meaker_usuarios").insert({
       gmail: gmail,
       tipo: "companero",
       estado: "pendiente",
@@ -762,7 +765,7 @@ async function pagarYCrearUsuario() {
   }
 
   try {
-    const { data: existentes } = await sb.from("usuarios").select("*").eq("gmail", gmail).limit(1);
+    const { data: existentes } = await sb.from("meaker_usuarios").select("*").eq("gmail", gmail).limit(1);
 
     let usuario;
     if (existentes && existentes.length > 0) {
@@ -773,7 +776,7 @@ async function pagarYCrearUsuario() {
       }
     } else {
       const { data: nuevo, error } = await sb
-        .from("usuarios")
+        .from("meaker_usuarios")
         .insert({ gmail: gmail, tipo: "pagado", estado: "aprobado" })
         .select()
         .single();
@@ -805,7 +808,7 @@ async function iniciarSesion() {
   }
 
   try {
-    const { data: existentes, error } = await sb.from("usuarios").select("*").eq("gmail", gmail).limit(1);
+    const { data: existentes, error } = await sb.from("meaker_usuarios").select("*").eq("gmail", gmail).limit(1);
     if (error) throw error;
 
     if (!existentes || existentes.length === 0) {
@@ -855,9 +858,9 @@ function cerrarSesion() {
 // CARGA DE DATOS COMPARTIDOS
 // ============================================================
 async function obtenerSeriesConEpisodios(soloPublicados) {
-  const { data: series } = await sb.from("series").select("*").order("creado_en", { ascending: false });
-  const { data: temporadas } = await sb.from("temporadas").select("*").order("numero", { ascending: true });
-  let query = sb.from("episodios").select("*").order("numero", { ascending: true });
+  const { data: series } = await sb.from("meaker_series").select("*").order("creado_en", { ascending: false });
+  const { data: temporadas } = await sb.from("meaker_temporadas").select("*").order("numero", { ascending: true });
+  let query = sb.from("meaker_episodios").select("*").order("numero", { ascending: true });
   if (soloPublicados) query = query.eq("publicado", true);
   const { data: episodios } = await query;
 
@@ -872,7 +875,7 @@ async function obtenerSeriesConEpisodios(soloPublicados) {
 }
 
 async function obtenerCanales() {
-  const { data } = await sb.from("canales").select("*").eq("activo", true).order("creado_en", { ascending: false });
+  const { data } = await sb.from("meaker_canales").select("*").eq("activo", true).order("creado_en", { ascending: false });
   return data || [];
 }
 
@@ -1083,7 +1086,7 @@ async function crearSerie() {
     imagenB64 = await resizeImagenABase64(inputImg.files[0], 400);
   }
 
-  const { error } = await sb.from("series").insert({
+  const { error } = await sb.from("meaker_series").insert({
     nombre: nombre,
     imagen: imagenB64,
     creado_por: usuarioActual ? usuarioActual.id : null,
@@ -1116,7 +1119,7 @@ async function crearEpisodio() {
 
   try {
     let { data: temporadaExistente } = await sb
-      .from("temporadas")
+      .from("meaker_temporadas")
       .select("*")
       .eq("serie_id", serieId)
       .eq("numero", numTemporada)
@@ -1127,7 +1130,7 @@ async function crearEpisodio() {
       temporadaId = temporadaExistente[0].id;
     } else {
       const { data: nuevaTemporada, error } = await sb
-        .from("temporadas")
+        .from("meaker_temporadas")
         .insert({ serie_id: serieId, numero: numTemporada })
         .select()
         .single();
@@ -1135,7 +1138,7 @@ async function crearEpisodio() {
       temporadaId = nuevaTemporada.id;
     }
 
-    await sb.from("episodios").insert({
+    await sb.from("meaker_episodios").insert({
       temporada_id: temporadaId,
       numero: numEpisodio,
       titulo: titulo,
@@ -1172,7 +1175,7 @@ async function crearCanal() {
     imagenB64 = await resizeImagenABase64(inputImg.files[0], 400);
   }
 
-  await sb.from("canales").insert({
+  await sb.from("meaker_canales").insert({
     nombre: nombre,
     url: url,
     imagen: imagenB64,
