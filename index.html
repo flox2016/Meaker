@@ -521,7 +521,7 @@
 
 // ---------- Configuración ----------
 const SUPABASE_URL = "https://flkjwpcypihdkiyblucs.supabase.co";
-const SUPABASE_KEY = "sb_publishable_u7n8Y8_cjU78pgqlSVkG6w_FO2K99Q2";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsa2p3cGN5cGloZGtpeWJsdWNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMDM2MjMsImV4cCI6MjA5ODY3OTYyM30.Zevico24gkdO9-d8xOWKFSRsKt_npHef4F2OFCR5DsU";
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const EMAILJS_PUBLIC_KEY = "UdJPbQnaK6FqwcYze";
@@ -719,14 +719,22 @@ async function confirmarCodigo() {
 
 async function crearUsuarioCompanero(gmail) {
   // ¿ya existe?
-  const { data: existentes } = await sb.from("usuarios").select("*").eq("email", gmail).limit(1);
+  const { data: existentes, error: errorBusqueda } = await sb
+    .from("usuarios")
+    .select("*")
+    .eq("gmail", gmail)
+    .limit(1);
+
+  if (errorBusqueda) throw errorBusqueda;
 
   if (!existentes || existentes.length === 0) {
-    await sb.from("usuarios").insert({
-      email: gmail,
+    const { error: errorInsert } = await sb.from("usuarios").insert({
+      gmail: gmail,
       tipo: "companero",
       estado: "pendiente",
     });
+
+    if (errorInsert) throw errorInsert;
 
     try {
       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_NOTIF_ADMIN, {
@@ -1075,12 +1083,19 @@ async function crearSerie() {
     imagenB64 = await resizeImagenABase64(inputImg.files[0], 400);
   }
 
-  await sb.from("series").insert({
+  const { error } = await sb.from("series").insert({
     nombre: nombre,
     imagen: imagenB64,
     creado_por: usuarioActual ? usuarioActual.id : null,
   });
 
+  if (error) {
+    console.error(error);
+    alert("Hubo un error creando la serie.");
+    return;
+  }
+
+  document.getElementById("nueva-serie-nombre").value = "";
   recargarPanelActual();
 }
 
@@ -1220,7 +1235,6 @@ function cerrarModal() {
 function cerrarModalSiFondo(evento) {
   if (evento.target.id === "modal-video") cerrarModal();
 }
-
 </script>
 </body>
 </html>
