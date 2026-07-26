@@ -547,7 +547,8 @@ function irA(idPantalla) {
 
 function mostrarError(idElemento, mensaje) {
   const el = document.getElementById(idElemento);
-  el.textContent = mensaje;
+  if (el) el.textContent = mensaje;
+  else console.warn("No se encontró el elemento", idElemento, "- mensaje:", mensaje);
 }
 
 function limpiarError(idElemento) {
@@ -1099,7 +1100,31 @@ async function crearSerie() {
   }
 
   document.getElementById("nueva-serie-nombre").value = "";
-  recargarPanelActual();
+  inputImg.value = "";
+  await actualizarSelectSeries();
+  alert("Serie creada. Ya la podés elegir en 'Sumar episodio'.");
+}
+
+async function actualizarSelectSeries() {
+  const select = document.getElementById("episodio-serie");
+  if (!select) return;
+
+  const valorActual = select.value;
+  const { data: series } = await sb
+    .from("meaker_series")
+    .select("*")
+    .order("creado_en", { ascending: false });
+
+  const opciones = (series || [])
+    .map((s) => `<option value="${s.id}">${escapeHTML(s.nombre)}</option>`)
+    .join("");
+  select.innerHTML = `<option value="">Elegí una serie</option>${opciones}`;
+
+  if (valorActual && series && series.some((s) => s.id === valorActual)) {
+    select.value = valorActual;
+  } else if (series && series.length > 0) {
+    select.value = series[0].id;
+  }
 }
 
 async function crearEpisodio() {
@@ -1148,9 +1173,13 @@ async function crearEpisodio() {
       creado_por: usuarioActual ? usuarioActual.id : null,
     });
 
-    document.getElementById("episodio-titulo").value = "";
-    document.getElementById("episodio-descripcion").value = "";
-    document.getElementById("episodio-video").value = "";
+    const campoTitulo = document.getElementById("episodio-titulo");
+    const campoDescripcion = document.getElementById("episodio-descripcion");
+    const campoVideo = document.getElementById("episodio-video");
+    if (campoTitulo) campoTitulo.value = "";
+    if (campoDescripcion) campoDescripcion.value = "";
+    if (campoVideo) campoVideo.value = "";
+    alert("Episodio agregado correctamente.");
     recargarPanelActual();
   } catch (err) {
     console.error(err);
@@ -1182,8 +1211,11 @@ async function crearCanal() {
     creado_por: usuarioActual ? usuarioActual.id : null,
   });
 
-  document.getElementById("canal-nombre").value = "";
-  document.getElementById("canal-url").value = "";
+  const campoNombre = document.getElementById("canal-nombre");
+  const campoUrl = document.getElementById("canal-url");
+  if (campoNombre) campoNombre.value = "";
+  if (campoUrl) campoUrl.value = "";
+  alert("Canal agregado correctamente.");
   recargarPanelActual();
 }
 
