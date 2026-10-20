@@ -2,7 +2,6 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/png" href="Diseño sin título (2).png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Meaker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -360,6 +359,111 @@
     border-radius:10px; padding:12px 14px; font-size:13px; color:var(--texto-tenue);
   }
 
+  /* ---------- v2: Mi lista, buscador, detalle, reproductor ---------- */
+  .card-img{ position:relative; }
+  .btn-lista{
+    position:absolute; top:8px; right:8px;
+    width:30px; height:30px; border-radius:50%;
+    background:rgba(16,13,11,0.78); color:#fff;
+    border:1px solid rgba(255,255,255,0.25);
+    font-size:16px; font-weight:700; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .btn-lista:hover, .btn-lista.activo{ background:var(--naranja); border-color:var(--naranja); }
+  .buscador-wrap{ margin-bottom:20px; }
+  .buscador{ margin-bottom:0; max-width:520px; }
+  .lista-episodios-busqueda{ display:flex; flex-direction:column; margin-bottom:36px; }
+
+  .modal-fondo.scroll{ overflow-y:auto; align-items:flex-start; z-index:90; }
+  .modal-detalle{
+    width:100%; max-width:820px; margin:auto;
+    background:var(--fondo-panel);
+    border:1px solid var(--borde);
+    border-radius:14px;
+    overflow:hidden;
+  }
+  .detalle-head{
+    background:linear-gradient(135deg, var(--naranja-oscuro), #3a2318);
+    background-size:cover; background-position:center;
+  }
+  .detalle-head-overlay{
+    min-height:220px; padding:28px 24px 22px;
+    display:flex; flex-direction:column; justify-content:flex-end; gap:8px;
+    background:linear-gradient(to top, var(--fondo-panel) 4%, rgba(27,22,19,0.6) 55%, rgba(27,22,19,0.25));
+  }
+  .detalle-tag{ font-size:11px; letter-spacing:2px; color:var(--naranja); text-transform:uppercase; font-weight:700; }
+  .detalle-head h2{ font-size:26px; line-height:1.1; }
+  .detalle-head p{ color:var(--texto-tenue); font-size:13.5px; max-width:560px; line-height:1.5; }
+  .detalle-acciones{ display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
+  .detalle-body{ padding:8px 24px 26px; }
+  .tabs.temporadas{ flex-wrap:nowrap; overflow-x:auto; padding-bottom:4px; margin:14px 0; }
+  .tabs.temporadas .tab{ white-space:nowrap; flex:0 0 auto; }
+  .ep-fila{
+    display:flex; align-items:center; gap:14px;
+    padding:12px; border-bottom:1px solid var(--borde);
+    border-radius:8px; cursor:pointer;
+  }
+  .ep-fila:hover{ background:var(--fondo-card); }
+  .ep-num{ font-family:'Archivo Black', sans-serif; font-size:18px; color:var(--texto-tenue); width:30px; text-align:center; flex:0 0 auto; }
+  .ep-info{ flex:1; min-width:0; }
+  .ep-titulo{ font-size:14px; font-weight:600; }
+  .ep-desc{
+    font-size:12px; color:var(--texto-tenue); margin-top:2px;
+    overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+  }
+  .ep-play{
+    width:34px; height:34px; border-radius:50%; flex:0 0 auto;
+    border:1px solid var(--borde);
+    display:flex; align-items:center; justify-content:center; font-size:12px;
+  }
+  .ep-fila:hover .ep-play{ background:var(--naranja); border-color:var(--naranja); }
+
+  .player-wrap{ position:relative; width:100%; aspect-ratio:16/9; background:#000; }
+  .player-wrap video{ position:absolute; inset:0; width:100%; height:100%; aspect-ratio:auto; }
+  #yt-contenedor{ position:absolute; inset:0; }
+  #yt-contenedor iframe{ position:absolute; inset:0; width:100%; height:100%; aspect-ratio:auto; }
+  .fin-overlay{
+    position:absolute; inset:0; z-index:5;
+    background:rgba(10,8,7,0.9);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:8px; text-align:center; padding:16px;
+  }
+  .fin-texto{ font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--naranja); font-weight:700; }
+  .fin-sub{ font-size:16px; font-weight:600; max-width:480px; }
+  .fin-cuenta{ font-family:'Archivo Black', sans-serif; font-size:54px; color:var(--naranja); line-height:1; margin:6px 0; }
+  .fin-botones{ display:flex; gap:8px; }
+
+  .progreso{
+    position:relative; height:34px; margin-bottom:14px; overflow:hidden;
+    background:var(--fondo-card); border:1px solid var(--borde); border-radius:10px;
+  }
+  .progreso-barra{
+    position:absolute; inset:0 auto 0 0; width:0%;
+    background:linear-gradient(135deg, var(--naranja), var(--naranja-oscuro));
+    transition:width 0.2s;
+  }
+  .progreso-texto{
+    position:relative; height:100%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12.5px; font-weight:600;
+  }
+
+  .toast{
+    position:fixed; left:50%; bottom:28px; transform:translateX(-50%);
+    background:var(--fondo-card); border:1px solid var(--borde);
+    color:var(--texto); padding:12px 18px; border-radius:10px;
+    font-size:13.5px; z-index:200; max-width:90vw;
+    box-shadow:0 8px 28px rgba(0,0,0,0.5);
+  }
+  .toast.ok{ border-color:var(--exito); }
+  .toast.error{ border-color:var(--error); }
+
+  @media (max-width:640px){
+    .detalle-head-overlay{ padding:22px 16px 18px; }
+    .detalle-body{ padding:6px 12px 22px; }
+    .detalle-head h2{ font-size:22px; }
+  }
+
   @media (max-width:640px){
     .header-panel{ padding:14px 16px; }
     .contenido-panel{ padding:24px 14px 60px; }
@@ -380,13 +484,10 @@
 <div id="screen-menu" class="pantalla oculto">
   <div class="wordmark">MEAKER</div>
   <h1 class="titulo-menu display">Todo tu contenido<br>en un solo lugar</h1>
-  <p class="subtitulo-menu">Series, temporadas, episodios y canales en vivo. Elegí cómo querés entrar.</p>
+  <p class="subtitulo-menu">Series, películas, obras de teatro y canales en vivo. Elegí cómo querés entrar.</p>
   <div class="botones-menu">
     <button class="boton-principal" onclick="irA('screen-jefe-pass')">
       <span>Entrá como el Jefe</span><span class="flecha">→</span>
-    </button>
-    <button class="boton-principal secundario" onclick="irA('screen-companero-email')">
-      <span>Sé nuestro Compañero y sumá tu episodio</span><span class="flecha">→</span>
     </button>
     <button class="boton-principal secundario" onclick="irA('screen-pagado-email')">
       <span>Pagá por 0$uds para ver todos los episodios</span><span class="flecha">→</span>
@@ -400,22 +501,10 @@
   <button class="volver" onclick="irA('screen-menu')">← Volver</button>
   <div class="tarjeta">
     <div class="display">Acceso del Jefe</div>
-    <p>Ingresá la contraseña secreta para entrar.</p>
+    <p>Ingresá la contraseña secreta. Después te mandamos un código de verificación por mail.</p>
     <input type="password" id="input-pass-jefe" class="campo" placeholder="Contraseña" maxlength="8" inputmode="numeric">
     <div class="mensaje-error" id="error-jefe"></div>
-    <button class="btn" onclick="verificarJefe()">Entrar</button>
-  </div>
-</div>
-
-<!-- ============ PANTALLA: COMPAÑERO - PEDIR GMAIL ============ -->
-<div id="screen-companero-email" class="pantalla oculto">
-  <button class="volver" onclick="irA('screen-menu')">← Volver</button>
-  <div class="tarjeta">
-    <div class="display">Sumate como Compañero</div>
-    <p>Ingresá tu Gmail y te mandamos un código para verificar que sos vos.</p>
-    <input type="email" id="input-gmail-companero" class="campo" placeholder="tu-correo@gmail.com">
-    <div class="mensaje-error" id="error-companero-email"></div>
-    <button class="btn" id="btn-enviar-codigo" onclick="pedirCodigoCompanero()">Mandarme el código</button>
+    <button class="btn" id="btn-entrar-jefe" onclick="verificarJefe()">Entrar</button>
   </div>
 </div>
 
@@ -424,20 +513,10 @@
   <button class="volver" onclick="irA('screen-menu')">← Volver</button>
   <div class="tarjeta">
     <div class="display">Verificá que sos vos</div>
-    <p id="texto-verificar">Te mandamos un código de 4 números a tu Gmail. Escribilo acá abajo.</p>
+    <p id="texto-verificar">Te mandamos un código de 4 números por mail. Escribilo acá abajo.</p>
     <input type="text" id="input-codigo" class="campo campo-codigo" placeholder="----" maxlength="4" inputmode="numeric">
     <div class="mensaje-error" id="error-codigo"></div>
     <button class="btn" id="btn-confirmar-codigo" onclick="confirmarCodigo()">Confirmar código</button>
-  </div>
-</div>
-
-<!-- ============ PANTALLA: ESPERANDO APROBACION ============ -->
-<div id="screen-esperando" class="pantalla oculto">
-  <div class="tarjeta">
-    <div class="icono-estado espera">⏳</div>
-    <div class="display">Gracias por participar</div>
-    <p>Esperá a que te notifiquemos. En cuanto el Jefe apruebe tu cuenta, vas a poder entrar con tu Gmail y sumar canales, episodios y temporadas.</p>
-    <button class="btn" onclick="irA('screen-menu')">Volver al inicio</button>
   </div>
 </div>
 
@@ -458,54 +537,47 @@
   <button class="volver" onclick="irA('screen-menu')">← Volver</button>
   <div class="tarjeta">
     <div class="display">Ver todos los episodios</div>
-    <p>Pagá por 0$uds y creá tu usuario para ver todos los episodios subidos.</p>
+    <p>Pagá por 0$uds y creá tu usuario para ver todo el contenido subido.</p>
     <input type="email" id="input-gmail-pagado" class="campo" placeholder="tu-correo@gmail.com">
     <div class="mensaje-error" id="error-pagado"></div>
     <button class="btn" onclick="pagarYCrearUsuario()">Pagar 0$uds y crear mi usuario</button>
   </div>
 </div>
 
-<!-- ============ PANEL: JEFE ============ -->
-<div id="screen-jefe-panel" class="pantalla oculto" style="justify-content:flex-start; padding:0;">
+<!-- ============ PANEL (Jefe / Compañero / Pagado) ============ -->
+<div id="screen-panel" class="pantalla oculto" style="justify-content:flex-start; padding:0;">
   <div class="header-panel">
-    <div class="marca display">MEAKER <span class="punto">·</span> <span style="font-size:12px; font-weight:400; color:var(--texto-tenue);">Jefe</span></div>
+    <div class="marca display">MEAKER <span id="panel-rol-wrap" class="oculto"><span class="punto">·</span> <span id="panel-rol" style="font-size:12px; font-weight:400; color:var(--texto-tenue);"></span></span></div>
     <div class="usuario-tag">
-      <button class="btn-chico" onclick="window.open('meaker_admin.html','_blank')">Panel Admin</button>
+      <span id="panel-gmail"></span>
+      <button class="btn-chico oculto" id="btn-admin" onclick="window.open('meaker_admin.html','_blank')">Panel Admin</button>
       <button class="btn-chico" onclick="cerrarSesion()">Salir</button>
     </div>
   </div>
-  <div class="contenido-panel" id="contenido-jefe"></div>
+  <div class="contenido-panel" id="contenido-panel"></div>
 </div>
 
-<!-- ============ PANEL: COMPAÑERO ============ -->
-<div id="screen-companero-panel" class="pantalla oculto" style="justify-content:flex-start; padding:0;">
-  <div class="header-panel">
-    <div class="marca display">MEAKER <span class="punto">·</span> <span style="font-size:12px; font-weight:400; color:var(--texto-tenue);">Compañero</span></div>
-    <div class="usuario-tag">
-      <span id="gmail-companero-actual"></span>
-      <button class="btn-chico" onclick="cerrarSesion()">Salir</button>
-    </div>
-  </div>
-  <div class="contenido-panel" id="contenido-companero"></div>
+<!-- ============ MODAL: DETALLE DE SERIE ============ -->
+<div id="modal-detalle" class="modal-fondo scroll oculto" onclick="cerrarDetalleSiFondo(event)">
+  <div class="modal-detalle" id="detalle-contenido"></div>
 </div>
 
-<!-- ============ PANEL: PAGADO (ver todo) ============ -->
-<div id="screen-pagado-panel" class="pantalla oculto" style="justify-content:flex-start; padding:0;">
-  <div class="header-panel">
-    <div class="marca display">MEAKER</div>
-    <div class="usuario-tag">
-      <span id="gmail-pagado-actual"></span>
-      <button class="btn-chico" onclick="cerrarSesion()">Salir</button>
-    </div>
-  </div>
-  <div class="contenido-panel" id="contenido-pagado"></div>
-</div>
-
-<!-- ============ MODAL VIDEO ============ -->
+<!-- ============ MODAL: REPRODUCTOR ============ -->
 <div id="modal-video" class="modal-fondo oculto" onclick="cerrarModalSiFondo(event)">
   <div class="modal-video">
-    <video id="video-player" controls class="oculto"></video>
-    <iframe id="video-iframe" class="oculto" allowfullscreen></iframe>
+    <div class="player-wrap">
+      <video id="video-player" controls playsinline class="oculto"></video>
+      <div id="yt-contenedor" class="oculto"></div>
+      <div id="fin-overlay" class="fin-overlay oculto">
+        <div class="fin-texto" id="fin-titulo"></div>
+        <div class="fin-sub" id="fin-sub"></div>
+        <div class="fin-cuenta" id="fin-cuenta">3</div>
+        <div class="fin-botones">
+          <button class="btn-chico naranja" id="fin-ver-ahora" onclick="saltarCuenta()">Ver ahora</button>
+          <button class="btn-chico" onclick="cancelarCuenta()">Cancelar</button>
+        </div>
+      </div>
+    </div>
     <div class="info">
       <h3 id="modal-video-titulo" style="font-size:16px; margin-bottom:6px;"></h3>
       <p id="modal-video-desc" style="font-size:13px; color:var(--texto-tenue);"></p>
@@ -514,9 +586,11 @@
   </div>
 </div>
 
+<div id="toast" class="toast oculto"></div>
+
 <script>
 /* ============================================================
-   MEAKER — lógica de la app
+   MEAKER — lógica de la app (v2)
    ============================================================ */
 
 // ---------- Configuración ----------
@@ -527,18 +601,41 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const EMAILJS_PUBLIC_KEY = "UdJPbQnaK6FqwcYze";
 const EMAILJS_SERVICE_ID = "service_3g1bmyh";
 const EMAILJS_TEMPLATE_CODIGO = "template_441duty";
-const EMAILJS_TEMPLATE_NOTIF_ADMIN = "template_fooddy9";
 emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 
 const PASSWORD_JEFE = "2102";
-const ADMIN_EMAIL = "flox2102@gmail.com";
+const ADMIN_EMAIL = "flox2102@gmail.com"; // el código del Jefe siempre se manda acá
 
-// ---------- Estado local ----------
-let usuarioActual = null; // { id, gmail, tipo, estado }
+const BUCKET = "meaker-media";
+const MAX_BYTES = 50 * 1024 * 1024; // 50 MB (límite del plan gratuito de Supabase)
+const CLAVE_SESION = "meaker_sesion";
+
+const CATEGORIAS = {
+  serie: { nombre: "Serie", icono: "🎬" },
+  pelicula: { nombre: "Película", icono: "🎞️" },
+  obra: { nombre: "Obra de teatro", icono: "🎭" },
+};
+
+// ---------- Estado ----------
+let usuarioActual = null; // { id, gmail, tipo: 'jefe' | 'companero' | 'pagado', estado }
 let gmailPendienteVerificacion = null;
-let flujoVerificacion = null; // 'companero'
+let flujoVerificacion = null; // 'jefe'
+let catalogo = []; // series / películas / obras (las series con temporadas y episodios)
+let canalesCache = [];
+let miLista = new Set();
+let tabActiva = "contenido";
+let detalleSerieId = null;
+let reproduccion = null; // { tipo: 'serie', serieId, ti, ei } | { tipo: 'item' } | { tipo: 'canal' }
+let tokenReproduccion = 0;
+let ytPlayer = null;
+let ytApiPromesa = null;
+let cuentaTimer = null;
+let accionPendiente = null;
+let toastTimer = null;
 
-// ---------- Navegación entre pantallas ----------
+// ============================================================
+// UTILIDADES
+// ============================================================
 function irA(idPantalla) {
   document.querySelectorAll(".pantalla").forEach((el) => el.classList.add("oculto"));
   document.getElementById(idPantalla).classList.remove("oculto");
@@ -556,21 +653,46 @@ function limpiarError(idElemento) {
   if (el) el.textContent = "";
 }
 
-// ---------- Arranque: loading ----------
-window.addEventListener("DOMContentLoaded", () => {
-  setTimeout(() => {
-    irA("screen-menu");
-  }, 2600);
-});
+function avisar(texto, tipo) {
+  const el = document.getElementById("toast");
+  el.textContent = texto;
+  el.className = "toast " + (tipo || "");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.add("oculto"), 3500);
+}
 
-// ---------- Utilidades ----------
+function escapeHTML(str) {
+  const div = document.createElement("div");
+  div.textContent = str == null ? "" : String(str);
+  return div.innerHTML;
+}
+
+function escapeAtributo(str) {
+  return (str || "").replace(/'/g, "&#39;");
+}
+
+function normalizar(texto) {
+  return (texto || "")
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 function validarGmail(valor) {
-  const v = valor.trim().toLowerCase();
-  return /^[a-z0-9._%+-]+@gmail\.com$/.test(v);
+  return /^[a-z0-9._%+-]+@gmail\.com$/.test(valor.trim().toLowerCase());
 }
 
 function generarCodigo() {
   return String(Math.floor(1000 + Math.random() * 9000));
+}
+
+function mensajeDeError(err) {
+  const m = (err && (err.message || err.error_description)) || "Hubo un error.";
+  if (/column|relation|schema cache|does not exist|bucket/i.test(m)) {
+    return m + " — ¿corriste el SQL nuevo (schema_v2.sql) en Supabase?";
+  }
+  return m;
 }
 
 function resizeImagenABase64(file, maxAncho) {
@@ -583,8 +705,7 @@ function resizeImagenABase64(file, maxAncho) {
         const canvas = document.createElement("canvas");
         canvas.width = img.width * escala;
         canvas.height = img.height * escala;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
         resolve(canvas.toDataURL("image/jpeg", 0.8));
       };
       img.onerror = reject;
@@ -596,80 +717,132 @@ function resizeImagenABase64(file, maxAncho) {
 }
 
 // ============================================================
-// FLUJO: JEFE
+// SESIÓN RECORDADA (localStorage)
 // ============================================================
-function verificarJefe() {
-  const valor = document.getElementById("input-pass-jefe").value.trim();
-  if (valor === PASSWORD_JEFE) {
-    limpiarError("error-jefe");
-    document.getElementById("input-pass-jefe").value = "";
-    usuarioActual = { id: null, gmail: "jefe@meaker", tipo: "jefe", estado: "aprobado" };
-    irA("screen-jefe-panel");
-    cargarPanelJefe();
-  } else {
-    mostrarError("error-jefe", "Contraseña incorrecta.");
-    setTimeout(() => {
-      document.getElementById("input-pass-jefe").value = "";
-      irA("screen-menu");
-      limpiarError("error-jefe");
-    }, 1200);
+function guardarSesion(obj) {
+  try { localStorage.setItem(CLAVE_SESION, JSON.stringify(obj)); } catch (e) {}
+}
+
+function leerSesion() {
+  try {
+    const raw = localStorage.getItem(CLAVE_SESION);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
   }
 }
 
-// ============================================================
-// FLUJO: COMPAÑERO — pedir código
-// ============================================================
-async function pedirCodigoCompanero() {
-  const campoGmail = document.getElementById("input-gmail-companero");
-  const gmail = campoGmail.value.trim().toLowerCase();
-  limpiarError("error-companero-email");
+function borrarSesion() {
+  try { localStorage.removeItem(CLAVE_SESION); } catch (e) {}
+}
 
-  if (!validarGmail(gmail)) {
-    mostrarError("error-companero-email", "Ingresá un Gmail válido.");
+function usuarioPuedeEntrar(u) {
+  if (u.activo === false) return false;
+  if (u.tipo === "pagado") return true;
+  return u.tipo === "companero" && u.estado === "aprobado";
+}
+
+async function restaurarSesion() {
+  const sesion = leerSesion();
+  if (!sesion || !sesion.tipo) return false;
+
+  if (sesion.tipo === "jefe") {
+    entrarComoJefe();
+    return true;
+  }
+
+  if (!sesion.gmail) {
+    borrarSesion();
+    return false;
+  }
+
+  const { data, error } = await sb.from("meaker_usuarios").select("*").eq("gmail", sesion.gmail).limit(1);
+  if (error) {
+    console.error(error);
+    return false; // sin conexión: va al menú, pero no borramos la sesión
+  }
+  const usuario = data && data[0];
+  if (!usuario || !usuarioPuedeEntrar(usuario)) {
+    borrarSesion();
+    return false;
+  }
+  entrarComoUsuario(usuario);
+  return true;
+}
+
+// ---------- Arranque ----------
+window.addEventListener("DOMContentLoaded", () => {
+  setTimeout(async () => {
+    let entro = false;
+    try {
+      entro = await restaurarSesion();
+    } catch (err) {
+      console.error(err);
+    }
+    if (!entro) irA("screen-menu");
+  }, 2600);
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if (!document.getElementById("modal-video").classList.contains("oculto")) cerrarModal();
+  else if (!document.getElementById("modal-detalle").classList.contains("oculto")) cerrarDetalle();
+});
+
+// ============================================================
+// FLUJO: JEFE (contraseña + código por mail)
+// ============================================================
+async function verificarJefe() {
+  const campo = document.getElementById("input-pass-jefe");
+  const valor = campo.value.trim();
+  limpiarError("error-jefe");
+
+  if (valor !== PASSWORD_JEFE) {
+    mostrarError("error-jefe", "Contraseña incorrecta.");
+    setTimeout(() => {
+      campo.value = "";
+      limpiarError("error-jefe");
+      irA("screen-menu");
+    }, 1200);
     return;
   }
 
-  const btn = document.getElementById("btn-enviar-codigo");
+  const btn = document.getElementById("btn-entrar-jefe");
   btn.disabled = true;
-  btn.textContent = "Enviando…";
+  btn.textContent = "Mandando código…";
 
   try {
     const codigo = generarCodigo();
 
-    // invalidamos códigos anteriores sin usar de este mismo gmail
-    await sb.from("meaker_verificaciones").update({ usado: true }).eq("gmail", gmail).eq("usado", false);
-
-    const { error: errorInsert } = await sb.from("meaker_verificaciones").insert({
-      gmail: gmail,
+    const { error } = await sb.from("meaker_verificaciones").insert({
+      gmail: ADMIN_EMAIL,
       codigo: codigo,
       usado: false,
     });
-    if (errorInsert) throw errorInsert;
+    if (error) throw error;
 
     await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CODIGO, {
-      to_email: gmail,
+      to_email: ADMIN_EMAIL,
       codigo: codigo,
     });
 
-    gmailPendienteVerificacion = gmail;
-    flujoVerificacion = "companero";
+    campo.value = "";
+    gmailPendienteVerificacion = ADMIN_EMAIL;
+    flujoVerificacion = "jefe";
     document.getElementById("texto-verificar").textContent =
-      "Te mandamos un código de 4 números a " + gmail + ". Escribilo acá abajo.";
+      "Te mandamos un código de 4 números al Gmail del Jefe. Escribilo acá abajo.";
     document.getElementById("input-codigo").value = "";
     limpiarError("error-codigo");
     irA("screen-verificar");
   } catch (err) {
     console.error(err);
-    mostrarError("error-companero-email", "No pudimos mandar el código. Probá de nuevo.");
+    mostrarError("error-jefe", "No pudimos mandar el código. Probá de nuevo.");
   } finally {
     btn.disabled = false;
-    btn.textContent = "Mandarme el código";
+    btn.textContent = "Entrar";
   }
 }
 
-// ============================================================
-// FLUJO: VERIFICAR CODIGO
-// ============================================================
 async function confirmarCodigo() {
   const codigoIngresado = document.getElementById("input-codigo").value.trim().replace(/\D/g, "");
   limpiarError("error-codigo");
@@ -684,34 +857,37 @@ async function confirmarCodigo() {
   btn.textContent = "Verificando…";
 
   try {
-    const { data: verificaciones, error: errorBusqueda } = await sb
+    const { data, error } = await sb
       .from("meaker_verificaciones")
       .select("*")
       .eq("gmail", gmailPendienteVerificacion)
       .eq("usado", false)
       .order("creado_en", { ascending: false })
-      .limit(1);
+      .limit(5);
+    if (error) throw error;
 
-    if (errorBusqueda) throw errorBusqueda;
+    // vale cualquiera de los últimos códigos pedidos (por si abrís un mail anterior)
+    const valido = (data || []).find((v) => String(v.codigo).trim() === codigoIngresado);
 
-    const ultima = verificaciones && verificaciones[0];
-
-    if (!ultima || ultima.codigo !== codigoIngresado) {
-      mostrarError("error-codigo", "Código incorrecto.");
+    if (!valido) {
+      mostrarError("error-codigo", "Código incorrecto. Fijate que sea el del último mail que te llegó.");
       setTimeout(() => {
         irA("screen-menu");
         document.getElementById("input-codigo").value = "";
         limpiarError("error-codigo");
-      }, 1300);
+      }, 2500);
       return;
     }
 
-    if (flujoVerificacion === "companero") {
-      await crearUsuarioCompanero(gmailPendienteVerificacion);
-    }
+    // al entrar, se gastan todos los códigos pendientes
+    await sb.from("meaker_verificaciones").update({ usado: true }).eq("gmail", gmailPendienteVerificacion).eq("usado", false);
 
-    // marcamos como usado recién ahora que todo el proceso terminó bien
-    await sb.from("meaker_verificaciones").update({ usado: true }).eq("id", ultima.id);
+    if (flujoVerificacion === "jefe") {
+      gmailPendienteVerificacion = null;
+      flujoVerificacion = null;
+      document.getElementById("input-codigo").value = "";
+      entrarComoJefe();
+    }
   } catch (err) {
     console.error(err);
     mostrarError("error-codigo", "Hubo un error. Probá de nuevo.");
@@ -721,43 +897,11 @@ async function confirmarCodigo() {
   }
 }
 
-async function crearUsuarioCompanero(gmail) {
-  // ¿ya existe?
-  const { data: existentes, error: errorBusqueda } = await sb
-    .from("meaker_usuarios")
-    .select("*")
-    .eq("gmail", gmail)
-    .limit(1);
-
-  if (errorBusqueda) throw errorBusqueda;
-
-  if (!existentes || existentes.length === 0) {
-    const { error: errorInsert } = await sb.from("meaker_usuarios").insert({
-      gmail: gmail,
-      tipo: "companero",
-      estado: "pendiente",
-    });
-
-    if (errorInsert) throw errorInsert;
-
-    try {
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_NOTIF_ADMIN, {
-        usuario_email: gmail,
-      });
-    } catch (err) {
-      console.error("No se pudo notificar al admin:", err);
-    }
-  }
-
-  irA("screen-esperando");
-}
-
 // ============================================================
 // FLUJO: PAGO 0$uds
 // ============================================================
 async function pagarYCrearUsuario() {
-  const campoGmail = document.getElementById("input-gmail-pagado");
-  const gmail = campoGmail.value.trim().toLowerCase();
+  const gmail = document.getElementById("input-gmail-pagado").value.trim().toLowerCase();
   limpiarError("error-pagado");
 
   if (!validarGmail(gmail)) {
@@ -766,13 +910,22 @@ async function pagarYCrearUsuario() {
   }
 
   try {
-    const { data: existentes } = await sb.from("meaker_usuarios").select("*").eq("gmail", gmail).limit(1);
+    const { data: existentes, error: errorBusqueda } = await sb
+      .from("meaker_usuarios")
+      .select("*")
+      .eq("gmail", gmail)
+      .limit(1);
+    if (errorBusqueda) throw errorBusqueda;
 
     let usuario;
     if (existentes && existentes.length > 0) {
       usuario = existentes[0];
       if (usuario.tipo !== "pagado") {
         mostrarError("error-pagado", "Ese Gmail ya está registrado de otra forma.");
+        return;
+      }
+      if (usuario.activo === false) {
+        mostrarError("error-pagado", "Esta cuenta fue dada de baja.");
         return;
       }
     } else {
@@ -785,10 +938,8 @@ async function pagarYCrearUsuario() {
       usuario = nuevo;
     }
 
-    usuarioActual = usuario;
-    document.getElementById("gmail-pagado-actual").textContent = usuario.gmail;
-    irA("screen-pagado-panel");
-    cargarPanelPagado();
+    document.getElementById("input-gmail-pagado").value = "";
+    entrarComoUsuario(usuario);
   } catch (err) {
     console.error(err);
     mostrarError("error-pagado", "Hubo un error creando tu usuario.");
@@ -796,11 +947,10 @@ async function pagarYCrearUsuario() {
 }
 
 // ============================================================
-// FLUJO: LOGIN (usuarios que vuelven)
+// FLUJO: LOGIN (usuarios que ya existen)
 // ============================================================
 async function iniciarSesion() {
-  const campoGmail = document.getElementById("input-gmail-login");
-  const gmail = campoGmail.value.trim().toLowerCase();
+  const gmail = document.getElementById("input-gmail-login").value.trim().toLowerCase();
   limpiarError("error-login");
 
   if (!validarGmail(gmail)) {
@@ -819,236 +969,806 @@ async function iniciarSesion() {
 
     const usuario = existentes[0];
 
-    if (!usuario.activo) {
+    if (usuario.activo === false) {
       mostrarError("error-login", "Esta cuenta fue dada de baja.");
       return;
     }
-
-    if (usuario.tipo === "companero") {
-      if (usuario.estado === "pendiente") {
-        irA("screen-esperando");
-        return;
-      }
-      if (usuario.estado === "rechazado") {
-        mostrarError("error-login", "Tu solicitud fue rechazada.");
-        return;
-      }
-      usuarioActual = usuario;
-      document.getElementById("gmail-companero-actual").textContent = usuario.gmail;
-      irA("screen-companero-panel");
-      cargarPanelCompanero();
-    } else if (usuario.tipo === "pagado") {
-      usuarioActual = usuario;
-      document.getElementById("gmail-pagado-actual").textContent = usuario.gmail;
-      irA("screen-pagado-panel");
-      cargarPanelPagado();
+    if (usuario.tipo === "companero" && usuario.estado === "pendiente") {
+      mostrarError("error-login", "Tu solicitud todavía está pendiente de aprobación.");
+      return;
     }
+    if (usuario.tipo === "companero" && usuario.estado === "rechazado") {
+      mostrarError("error-login", "Tu solicitud fue rechazada.");
+      return;
+    }
+
+    document.getElementById("input-gmail-login").value = "";
+    entrarComoUsuario(usuario);
   } catch (err) {
     console.error(err);
     mostrarError("error-login", "Hubo un error. Probá de nuevo.");
   }
 }
 
+// ============================================================
+// ENTRAR / SALIR
+// ============================================================
+function entrarComoJefe() {
+  usuarioActual = { id: null, gmail: "jefe", tipo: "jefe", estado: "aprobado" };
+  guardarSesion({ tipo: "jefe" });
+  abrirPanel();
+}
+
+function entrarComoUsuario(usuario) {
+  usuarioActual = usuario;
+  guardarSesion({ tipo: usuario.tipo, gmail: usuario.gmail });
+  abrirPanel();
+}
+
+function abrirPanel() {
+  const esJefe = usuarioActual.tipo === "jefe";
+  const rol = esJefe ? "Jefe" : usuarioActual.tipo === "companero" ? "Compañero" : "";
+  document.getElementById("panel-rol").textContent = rol;
+  document.getElementById("panel-rol-wrap").classList.toggle("oculto", !rol);
+  document.getElementById("panel-gmail").textContent = esJefe ? "" : usuarioActual.gmail;
+  document.getElementById("btn-admin").classList.toggle("oculto", !esJefe);
+  tabActiva = "contenido";
+  irA("screen-panel");
+  cargarPanel();
+}
+
 function cerrarSesion() {
+  borrarSesion();
+  detenerReproduccion();
+  document.getElementById("modal-video").classList.add("oculto");
+  document.getElementById("modal-detalle").classList.add("oculto");
   usuarioActual = null;
+  catalogo = [];
+  canalesCache = [];
+  miLista = new Set();
+  reproduccion = null;
+  detalleSerieId = null;
   gmailPendienteVerificacion = null;
+  document.getElementById("contenido-panel").innerHTML = "";
   irA("screen-menu");
 }
 
 // ============================================================
-// CARGA DE DATOS COMPARTIDOS
+// DATOS
 // ============================================================
-async function obtenerSeriesConEpisodios(soloPublicados) {
-  const { data: series } = await sb.from("meaker_series").select("*").order("creado_en", { ascending: false });
-  const { data: temporadas } = await sb.from("meaker_temporadas").select("*").order("numero", { ascending: true });
-  let query = sb.from("meaker_episodios").select("*").order("numero", { ascending: true });
-  if (soloPublicados) query = query.eq("publicado", true);
-  const { data: episodios } = await query;
+async function obtenerCatalogo(soloPublicados) {
+  let consultaSeries = sb.from("meaker_series").select("*").order("creado_en", { ascending: false });
+  let consultaEpisodios = sb.from("meaker_episodios").select("*").order("numero", { ascending: true });
+  if (soloPublicados) {
+    consultaSeries = consultaSeries.eq("publicado", true);
+    consultaEpisodios = consultaEpisodios.eq("publicado", true);
+  }
 
-  return (series || []).map((s) => {
-    const temporadasDeSerie = (temporadas || []).filter((t) => t.serie_id === s.id);
-    const temporadasConEpisodios = temporadasDeSerie.map((t) => ({
-      ...t,
-      episodios: (episodios || []).filter((e) => e.temporada_id === t.id),
-    }));
-    return { ...s, temporadas: temporadasConEpisodios };
+  const [rs, rt, re] = await Promise.all([
+    consultaSeries,
+    sb.from("meaker_temporadas").select("*").order("numero", { ascending: true }),
+    consultaEpisodios,
+  ]);
+  if (rs.error) throw rs.error;
+  if (rt.error) throw rt.error;
+  if (re.error) throw re.error;
+
+  const episodiosPorTemporada = new Map();
+  (re.data || []).forEach((e) => {
+    if (!episodiosPorTemporada.has(e.temporada_id)) episodiosPorTemporada.set(e.temporada_id, []);
+    episodiosPorTemporada.get(e.temporada_id).push(e);
   });
+
+  const temporadasPorSerie = new Map();
+  (rt.data || []).forEach((t) => {
+    if (!temporadasPorSerie.has(t.serie_id)) temporadasPorSerie.set(t.serie_id, []);
+    temporadasPorSerie.get(t.serie_id).push(t);
+  });
+
+  return (rs.data || []).map((s) => ({
+    ...s,
+    categoria: s.categoria || "serie",
+    temporadas: (temporadasPorSerie.get(s.id) || []).map((t) => ({
+      ...t,
+      episodios: episodiosPorTemporada.get(t.id) || [],
+    })),
+  }));
 }
 
 async function obtenerCanales() {
-  const { data } = await sb.from("meaker_canales").select("*").eq("activo", true).order("creado_en", { ascending: false });
+  const { data, error } = await sb
+    .from("meaker_canales")
+    .select("*")
+    .eq("activo", true)
+    .order("creado_en", { ascending: false });
+  if (error) {
+    console.error(error);
+    return [];
+  }
   return data || [];
 }
 
-// ============================================================
-// PANEL: COMPAÑERO
-// ============================================================
-async function cargarPanelCompanero() {
-  const cont = document.getElementById("contenido-companero");
-  cont.innerHTML = "<p class='vacio'>Cargando…</p>";
-
-  const [series, canales] = await Promise.all([obtenerSeriesConEpisodios(false), obtenerCanales()]);
-
-  cont.innerHTML = `
-    <div class="tabs">
-      <button class="tab activo" onclick="mostrarTab(this,'tab-companero-contenido')">Contenido</button>
-      <button class="tab" onclick="mostrarTab(this,'tab-companero-subir')">Sumar episodio</button>
-      <button class="tab" onclick="mostrarTab(this,'tab-companero-canal')">Sumar canal en vivo</button>
-    </div>
-
-    <div id="tab-companero-contenido">
-      ${renderGridSeries(series, false)}
-      <div class="seccion-titulo">Canales en vivo</div>
-      ${renderGridCanales(canales)}
-    </div>
-
-    <div id="tab-companero-subir" class="oculto">
-      ${formularioEpisodio(series)}
-    </div>
-
-    <div id="tab-companero-canal" class="oculto">
-      ${formularioCanal()}
-    </div>
-  `;
+function propietarioActual() {
+  return usuarioActual.tipo === "jefe" ? "jefe" : usuarioActual.gmail;
 }
 
-// ============================================================
-// PANEL: PAGADO (ver todo, sin subir)
-// ============================================================
-async function cargarPanelPagado() {
-  const cont = document.getElementById("contenido-pagado");
-  cont.innerHTML = "<p class='vacio'>Cargando…</p>";
-
-  const [series, canales] = await Promise.all([obtenerSeriesConEpisodios(true), obtenerCanales()]);
-
-  cont.innerHTML = `
-    <div class="seccion-titulo">Series y episodios</div>
-    ${renderGridSeries(series, true)}
-    <div class="seccion-titulo">Canales en vivo</div>
-    ${renderGridCanales(canales)}
-  `;
-}
-
-// ============================================================
-// PANEL: JEFE (contenido total, sin aprobación)
-// ============================================================
-async function cargarPanelJefe() {
-  const cont = document.getElementById("contenido-jefe");
-  cont.innerHTML = "<p class='vacio'>Cargando…</p>";
-
-  const [series, canales] = await Promise.all([obtenerSeriesConEpisodios(false), obtenerCanales()]);
-
-  cont.innerHTML = `
-    <div class="tabs">
-      <button class="tab activo" onclick="mostrarTab(this,'tab-jefe-contenido')">Contenido</button>
-      <button class="tab" onclick="mostrarTab(this,'tab-jefe-subir')">Sumar episodio</button>
-      <button class="tab" onclick="mostrarTab(this,'tab-jefe-canal')">Sumar canal en vivo</button>
-    </div>
-
-    <div id="tab-jefe-contenido">
-      ${renderGridSeries(series, false)}
-      <div class="seccion-titulo">Canales en vivo</div>
-      ${renderGridCanales(canales)}
-    </div>
-
-    <div id="tab-jefe-subir" class="oculto">
-      ${formularioEpisodio(series)}
-    </div>
-
-    <div id="tab-jefe-canal" class="oculto">
-      ${formularioCanal()}
-    </div>
-  `;
-}
-
-function mostrarTab(boton, idTab) {
-  const contenedorTabs = boton.parentElement;
-  contenedorTabs.querySelectorAll(".tab").forEach((t) => t.classList.remove("activo"));
-  boton.classList.add("activo");
-  const panelPadre = contenedorTabs.parentElement;
-  panelPadre.querySelectorAll(":scope > div[id^='tab-']").forEach((d) => d.classList.add("oculto"));
-  document.getElementById(idTab).classList.remove("oculto");
-}
-
-// ---------- Render: grillas ----------
-function renderGridSeries(series, soloPublicados) {
-  const conEpisodios = series.filter((s) =>
-    s.temporadas.some((t) => t.episodios.length > 0)
-  );
-  if (conEpisodios.length === 0) {
-    return "<div class='vacio'>Todavía no hay episodios cargados.</div>";
+async function obtenerMiLista() {
+  const { data, error } = await sb.from("meaker_mi_lista").select("serie_id").eq("propietario", propietarioActual());
+  if (error) {
+    console.warn("No se pudo leer Mi lista (¿falta correr schema_v2.sql?):", error.message);
+    return new Set();
   }
-  let html = "<div class='grid-cards'>";
-  conEpisodios.forEach((serie) => {
-    serie.temporadas.forEach((temp) => {
-      temp.episodios.forEach((ep) => {
-        const img = serie.imagen
-          ? `style="background-image:url('${escapeAtributo(serie.imagen)}')"`
-          : "";
-        html += `
-          <div class="card" onclick='abrirVideo(${JSON.stringify(ep.titulo)}, ${JSON.stringify(ep.descripcion || "")}, ${JSON.stringify(ep.video_url)})'>
-            <div class="card-img" ${img}>${serie.imagen ? "" : "🎬"}</div>
-            <div class="card-info">
-              <div class="t">${escapeHTML(serie.nombre)}</div>
-              <div class="s">T${temp.numero} · E${ep.numero} — ${escapeHTML(ep.titulo)}</div>
-            </div>
-          </div>`;
-      });
-    });
+  return new Set((data || []).map((r) => r.serie_id));
+}
+
+function esVisible(item) {
+  if (usuarioActual.tipo !== "pagado") return true;
+  if (item.categoria === "serie") return item.temporadas.some((t) => t.episodios.length > 0);
+  return !!item.video_url;
+}
+
+function contarEpisodios(serie) {
+  return serie.temporadas.reduce((n, t) => n + t.episodios.length, 0);
+}
+
+// ============================================================
+// PANEL
+// ============================================================
+async function cargarPanel() {
+  const cont = document.getElementById("contenido-panel");
+  cont.innerHTML = "<p class='vacio'>Cargando…</p>";
+  const soloPublicados = usuarioActual.tipo === "pagado";
+
+  try {
+    const [cat, canales, lista] = await Promise.all([
+      obtenerCatalogo(soloPublicados),
+      obtenerCanales(),
+      obtenerMiLista(),
+    ]);
+    if (!usuarioActual) return; // cerró sesión mientras cargaba
+    catalogo = cat;
+    canalesCache = canales;
+    miLista = lista;
+  } catch (err) {
+    console.error(err);
+    cont.innerHTML = `<div class='vacio'>No se pudo cargar el contenido: ${escapeHTML(mensajeDeError(err))}</div>`;
+    return;
+  }
+
+  renderPanel();
+}
+
+function renderPanel() {
+  const cont = document.getElementById("contenido-panel");
+  const puedeSubir = usuarioActual.tipo !== "pagado";
+
+  cont.innerHTML = `
+    <div class="buscador-wrap">
+      <input type="search" id="buscador" class="campo buscador" placeholder="Buscar series, películas, obras o episodios…" oninput="buscar()" autocomplete="off">
+    </div>
+
+    <div id="vista-normal">
+      <div class="tabs">
+        <button class="tab" data-tab="contenido" onclick="mostrarTab('contenido')">Contenido</button>
+        <button class="tab" data-tab="milista" onclick="mostrarTab('milista')">Mi lista <span class="notif-badge oculto" id="contador-lista">0</span></button>
+        ${
+          puedeSubir
+            ? `<button class="tab" data-tab="subir" onclick="mostrarTab('subir')">Subir contenido</button>
+               <button class="tab" data-tab="canal" onclick="mostrarTab('canal')">Sumar canal en vivo</button>`
+            : ""
+        }
+      </div>
+      <div id="tab-contenido"></div>
+      <div id="tab-milista" class="oculto"></div>
+      ${puedeSubir ? `<div id="tab-subir" class="oculto"></div><div id="tab-canal" class="oculto"></div>` : ""}
+    </div>
+
+    <div id="vista-busqueda" class="oculto"></div>
+  `;
+
+  renderContenido();
+  renderMiLista();
+  if (puedeSubir) {
+    document.getElementById("tab-subir").innerHTML = formularioSubir();
+    document.getElementById("tab-canal").innerHTML = formularioCanal();
+  }
+  mostrarTab(tabActiva);
+}
+
+function mostrarTab(nombre) {
+  tabActiva = nombre;
+  document.querySelectorAll("#vista-normal > .tabs .tab").forEach((t) => {
+    t.classList.toggle("activo", t.dataset.tab === nombre);
   });
-  html += "</div>";
-  return html;
+  document.querySelectorAll("#vista-normal > div[id^='tab-']").forEach((d) => {
+    d.classList.toggle("oculto", d.id !== "tab-" + nombre);
+  });
+}
+
+// ---------- Render: contenido ----------
+function tarjetaItem(item) {
+  const cat = CATEGORIAS[item.categoria] || CATEGORIAS.serie;
+  const img = item.imagen ? `style="background-image:url('${escapeAtributo(item.imagen)}')"` : "";
+  const enLista = miLista.has(item.id);
+
+  let sub;
+  if (item.categoria === "serie") {
+    const nT = item.temporadas.filter((t) => t.episodios.length > 0).length;
+    const nE = contarEpisodios(item);
+    sub = nE
+      ? `${nT} temporada${nT !== 1 ? "s" : ""} · ${nE} episodio${nE !== 1 ? "s" : ""}`
+      : "Sin episodios todavía";
+  } else {
+    sub = cat.nombre;
+  }
+
+  return `
+    <div class="card" onclick="abrirItem('${item.id}')">
+      <div class="card-img" ${img}>${item.imagen ? "" : cat.icono}
+        <button class="btn-lista ${enLista ? "activo" : ""}" data-lista="${item.id}" title="Mi lista"
+          onclick="event.stopPropagation(); alternarMiLista('${item.id}')">${enLista ? "✓" : "+"}</button>
+      </div>
+      <div class="card-info">
+        <div class="t">${escapeHTML(item.nombre)}</div>
+        <div class="s">${sub}</div>
+      </div>
+    </div>`;
 }
 
 function renderGridCanales(canales) {
-  if (!canales || canales.length === 0) {
-    return "<div class='vacio'>Todavía no hay canales en vivo.</div>";
-  }
-  let html = "<div class='grid-cards'>";
-  canales.forEach((c) => {
-    const img = c.imagen ? `style="background-image:url('${escapeAtributo(c.imagen)}')"` : "";
-    html += `
-      <div class="card" onclick='abrirVideo(${JSON.stringify(c.nombre)}, "En vivo", ${JSON.stringify(c.url)})'>
-        <div class="card-img" ${img}>${c.imagen ? "" : "📡"}</div>
-        <div class="card-info">
-          <div class="t">${escapeHTML(c.nombre)}</div>
-          <div class="s">En vivo</div>
-        </div>
-      </div>`;
+  if (!canales.length) return "<div class='vacio'>Todavía no hay canales en vivo.</div>";
+  return (
+    "<div class='grid-cards'>" +
+    canales
+      .map((c) => {
+        const img = c.imagen ? `style="background-image:url('${escapeAtributo(c.imagen)}')"` : "";
+        return `
+        <div class="card" onclick="reproducirCanal('${c.id}')">
+          <div class="card-img" ${img}>${c.imagen ? "" : "📡"}</div>
+          <div class="card-info">
+            <div class="t">${escapeHTML(c.nombre)}</div>
+            <div class="s">En vivo</div>
+          </div>
+        </div>`;
+      })
+      .join("") +
+    "</div>"
+  );
+}
+
+function renderContenido() {
+  const cont = document.getElementById("tab-contenido");
+  if (!cont) return;
+
+  const visibles = catalogo.filter(esVisible);
+  const grupos = [
+    ["serie", "Series"],
+    ["pelicula", "Películas"],
+    ["obra", "Obras de teatro"],
+  ];
+
+  let html = "";
+  grupos.forEach(([cat, titulo]) => {
+    const items = visibles.filter((i) => i.categoria === cat);
+    if (items.length) {
+      html += `<div class="seccion-titulo">${titulo}</div><div class="grid-cards">${items.map(tarjetaItem).join("")}</div>`;
+    }
   });
-  html += "</div>";
-  return html;
+  if (!visibles.length) html += "<div class='vacio'>Todavía no hay contenido cargado.</div>";
+
+  html += `<div class="seccion-titulo">Canales en vivo</div>${renderGridCanales(canalesCache)}`;
+  cont.innerHTML = html;
 }
 
-function escapeHTML(str) {
-  const div = document.createElement("div");
-  div.textContent = str || "";
-  return div.innerHTML;
+function renderMiLista() {
+  const cont = document.getElementById("tab-milista");
+  if (!cont) return;
+
+  const items = catalogo.filter((i) => miLista.has(i.id) && esVisible(i));
+  const contador = document.getElementById("contador-lista");
+  if (contador) {
+    contador.textContent = items.length;
+    contador.classList.toggle("oculto", items.length === 0);
+  }
+
+  cont.innerHTML = items.length
+    ? `<div class="grid-cards">${items.map(tarjetaItem).join("")}</div>`
+    : "<div class='vacio'>Tu lista está vacía. Tocá el + de cualquier serie, película u obra para guardarla acá.</div>";
 }
 
-function escapeAtributo(str) {
-  return (str || "").replace(/'/g, "&#39;");
+// ============================================================
+// MI LISTA
+// ============================================================
+function actualizarBotonesLista(id) {
+  const esta = miLista.has(id);
+  document.querySelectorAll(`[data-lista="${id}"]`).forEach((b) => {
+    b.classList.toggle("activo", esta);
+    b.textContent = esta ? "✓" : "+";
+  });
+  document.querySelectorAll(`[data-lista-det="${id}"]`).forEach((b) => {
+    b.textContent = esta ? "✓ En mi lista" : "+ Mi lista";
+  });
 }
 
-// ---------- Formularios ----------
-function formularioEpisodio(series) {
-  const opcionesSeries = series
-    .map((s) => `<option value="${s.id}">${escapeHTML(s.nombre)}</option>`)
+async function alternarMiLista(id) {
+  const prop = propietarioActual();
+  const estaba = miLista.has(id);
+
+  if (estaba) miLista.delete(id);
+  else miLista.add(id);
+  actualizarBotonesLista(id);
+  renderMiLista();
+
+  const { error } = estaba
+    ? await sb.from("meaker_mi_lista").delete().eq("propietario", prop).eq("serie_id", id)
+    : await sb.from("meaker_mi_lista").insert({ propietario: prop, serie_id: id });
+
+  if (error && error.code !== "23505") {
+    console.error(error);
+    if (estaba) miLista.add(id);
+    else miLista.delete(id);
+    actualizarBotonesLista(id);
+    renderMiLista();
+    avisar("No se pudo actualizar Mi lista. ¿Corriste el SQL nuevo?", "error");
+    return;
+  }
+  avisar(estaba ? "Sacado de Mi lista." : "Agregado a Mi lista.", "ok");
+}
+
+// ============================================================
+// BUSCADOR
+// ============================================================
+function buscar() {
+  const campo = document.getElementById("buscador");
+  if (!campo) return;
+  const texto = campo.value.trim();
+  const vistaNormal = document.getElementById("vista-normal");
+  const vistaBusqueda = document.getElementById("vista-busqueda");
+
+  if (!texto) {
+    vistaNormal.classList.remove("oculto");
+    vistaBusqueda.classList.add("oculto");
+    return;
+  }
+  vistaNormal.classList.add("oculto");
+  vistaBusqueda.classList.remove("oculto");
+
+  const q = normalizar(texto);
+  const visibles = catalogo.filter(esVisible);
+
+  const items = visibles.filter((i) => normalizar(i.nombre).includes(q) || normalizar(i.descripcion).includes(q));
+
+  const episodios = [];
+  visibles.forEach((serie) => {
+    if (serie.categoria !== "serie") return;
+    serie.temporadas.forEach((t, ti) => {
+      t.episodios.forEach((ep, ei) => {
+        if (normalizar(ep.titulo).includes(q) || normalizar(ep.descripcion).includes(q)) {
+          episodios.push({ serie, t, ep, ti, ei });
+        }
+      });
+    });
+  });
+
+  const canales = canalesCache.filter((c) => normalizar(c.nombre).includes(q));
+
+  let html = "";
+  if (items.length) {
+    html += `<div class="seccion-titulo">Series, películas y obras</div><div class="grid-cards">${items.map(tarjetaItem).join("")}</div>`;
+  }
+  if (episodios.length) {
+    html += `<div class="seccion-titulo">Episodios</div><div class="lista-episodios-busqueda">${episodios
+      .map(
+        ({ serie, t, ep, ti, ei }) => `
+        <div class="ep-fila" onclick="reproducirEpisodio('${serie.id}', ${ti}, ${ei})">
+          <div class="ep-num">${ep.numero}</div>
+          <div class="ep-info">
+            <div class="ep-titulo">${escapeHTML(ep.titulo)}</div>
+            <div class="ep-desc">${escapeHTML(serie.nombre)} · T${t.numero} · E${ep.numero}</div>
+          </div>
+          <div class="ep-play">▶</div>
+        </div>`
+      )
+      .join("")}</div>`;
+  }
+  if (canales.length) {
+    html += `<div class="seccion-titulo">Canales en vivo</div>${renderGridCanales(canales)}`;
+  }
+  if (!html) {
+    html = `<div class="vacio">No encontramos nada para “${escapeHTML(texto)}”.</div>`;
+  }
+  vistaBusqueda.innerHTML = html;
+}
+
+// ============================================================
+// DETALLE DE SERIE (estilo Netflix)
+// ============================================================
+function abrirItem(id) {
+  const item = catalogo.find((i) => i.id === id);
+  if (!item) return;
+  if (item.categoria === "serie") abrirDetalleSerie(id);
+  else reproducirItem(item);
+}
+
+function listaEpisodiosHTML(serie, ti) {
+  const temp = serie.temporadas[ti];
+  if (!temp) return "";
+  return temp.episodios
+    .map(
+      (ep, ei) => `
+      <div class="ep-fila" onclick="reproducirEpisodio('${serie.id}', ${ti}, ${ei})">
+        <div class="ep-num">${ep.numero}</div>
+        <div class="ep-info">
+          <div class="ep-titulo">${escapeHTML(ep.titulo)}${
+            ep.publicado === false ? ' <span style="font-size:10px; color:var(--error);">(oculto)</span>' : ""
+          }</div>
+          ${ep.descripcion ? `<div class="ep-desc">${escapeHTML(ep.descripcion)}</div>` : ""}
+        </div>
+        <div class="ep-play">▶</div>
+      </div>`
+    )
+    .join("");
+}
+
+function abrirDetalleSerie(serieId, indiceTemporada) {
+  const serie = catalogo.find((i) => i.id === serieId);
+  if (!serie) return;
+  detalleSerieId = serieId;
+
+  const conEpisodios = serie.temporadas.map((t, ti) => ({ t, ti })).filter((x) => x.t.episodios.length > 0);
+  const totalEp = contarEpisodios(serie);
+
+  let tiSel = conEpisodios.length ? conEpisodios[0].ti : -1;
+  if (indiceTemporada !== undefined && conEpisodios.some((x) => x.ti === indiceTemporada)) {
+    tiSel = indiceTemporada;
+  } else if (
+    reproduccion &&
+    reproduccion.tipo === "serie" &&
+    reproduccion.serieId === serieId &&
+    conEpisodios.some((x) => x.ti === reproduccion.ti)
+  ) {
+    tiSel = reproduccion.ti;
+  }
+
+  const portada = serie.imagen ? `style="background-image:url('${escapeAtributo(serie.imagen)}')"` : "";
+  const enLista = miLista.has(serie.id);
+  const tabs = conEpisodios
+    .map(
+      (x) =>
+        `<button class="tab ${x.ti === tiSel ? "activo" : ""}" data-ti="${x.ti}" onclick="cambiarTemporada('${serie.id}', ${x.ti})">Temporada ${x.t.numero}</button>`
+    )
     .join("");
 
+  document.getElementById("detalle-contenido").innerHTML = `
+    <div class="detalle-head" ${portada}>
+      <div class="detalle-head-overlay">
+        <div class="detalle-tag">Serie</div>
+        <h2 class="display">${escapeHTML(serie.nombre)}</h2>
+        ${serie.descripcion ? `<p>${escapeHTML(serie.descripcion)}</p>` : ""}
+        <p>${conEpisodios.length} temporada${conEpisodios.length !== 1 ? "s" : ""} · ${totalEp} episodio${totalEp !== 1 ? "s" : ""}</p>
+        <div class="detalle-acciones">
+          ${totalEp ? `<button class="btn-chico naranja" onclick="reproducirDesdeInicio('${serie.id}')">▶ Reproducir</button>` : ""}
+          <button class="btn-chico" data-lista-det="${serie.id}" onclick="alternarMiLista('${serie.id}')">${enLista ? "✓ En mi lista" : "+ Mi lista"}</button>
+          <button class="btn-chico" onclick="cerrarDetalle()">Cerrar ✕</button>
+        </div>
+      </div>
+    </div>
+    <div class="detalle-body">
+      ${
+        totalEp
+          ? `<div class="tabs temporadas" id="detalle-tabs">${tabs}</div>
+             <div id="detalle-episodios">${listaEpisodiosHTML(serie, tiSel)}</div>`
+          : "<div class='vacio'>Todavía no hay episodios en esta serie.</div>"
+      }
+    </div>`;
+
+  document.getElementById("modal-detalle").classList.remove("oculto");
+}
+
+function cambiarTemporada(serieId, ti) {
+  const serie = catalogo.find((i) => i.id === serieId);
+  if (!serie) return;
+  document.querySelectorAll("#detalle-tabs .tab").forEach((b) => {
+    b.classList.toggle("activo", Number(b.dataset.ti) === ti);
+  });
+  document.getElementById("detalle-episodios").innerHTML = listaEpisodiosHTML(serie, ti);
+}
+
+function cerrarDetalle() {
+  document.getElementById("modal-detalle").classList.add("oculto");
+  detalleSerieId = null;
+}
+
+function cerrarDetalleSiFondo(evento) {
+  if (evento.target.id === "modal-detalle") cerrarDetalle();
+}
+
+// ============================================================
+// REPRODUCTOR
+// ============================================================
+function extraerIdYoutube(url) {
+  const m = (url || "").match(
+    /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+  );
+  return m ? m[1] : null;
+}
+
+function cargarYoutubeApi() {
+  if (window.YT && window.YT.Player) return Promise.resolve();
+  if (ytApiPromesa) return ytApiPromesa;
+  ytApiPromesa = new Promise((resolve, reject) => {
+    const previo = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      if (previo) previo();
+      resolve();
+    };
+    const s = document.createElement("script");
+    s.src = "https://www.youtube.com/iframe_api";
+    s.onerror = () => {
+      ytApiPromesa = null;
+      reject(new Error("No se pudo cargar la API de YouTube"));
+    };
+    document.head.appendChild(s);
+  });
+  return ytApiPromesa;
+}
+
+async function reproducirYoutube(idVideo, token) {
+  const cont = document.getElementById("yt-contenedor");
+  cont.innerHTML = '<div id="yt-player"></div>';
+  cont.classList.remove("oculto");
+  try {
+    await cargarYoutubeApi();
+    if (token !== tokenReproduccion) return; // se cerró o cambió mientras cargaba
+    ytPlayer = new YT.Player("yt-player", {
+      videoId: idVideo,
+      width: "100%",
+      height: "100%",
+      playerVars: { autoplay: 1, rel: 0, playsinline: 1 },
+      events: {
+        onStateChange: (e) => {
+          if (e.data === 0) alTerminar(); // 0 = terminó
+        },
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    if (token !== tokenReproduccion) return;
+    // plan B: iframe simple (en este caso no se detecta el final del video)
+    cont.innerHTML = `<iframe src="https://www.youtube.com/embed/${idVideo}?autoplay=1&rel=0" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+  }
+}
+
+function detenerReproduccion() {
+  tokenReproduccion++;
+  limpiarCuenta();
+  const video = document.getElementById("video-player");
+  video.onended = null;
+  video.onerror = null;
+  video.pause();
+  video.removeAttribute("src");
+  video.load();
+  video.classList.add("oculto");
+  if (ytPlayer) {
+    try { ytPlayer.destroy(); } catch (e) {}
+    ytPlayer = null;
+  }
+  const cont = document.getElementById("yt-contenedor");
+  cont.innerHTML = "";
+  cont.classList.add("oculto");
+}
+
+async function cargarVideo(url) {
+  detenerReproduccion();
+  const token = tokenReproduccion;
+
+  if (!url) {
+    avisar("Este contenido no tiene video cargado.", "error");
+    return;
+  }
+
+  const idYoutube = extraerIdYoutube(url);
+  if (idYoutube) {
+    await reproducirYoutube(idYoutube, token);
+    return;
+  }
+
+  const video = document.getElementById("video-player");
+  video.classList.remove("oculto");
+  video.onended = alTerminar;
+  video.onerror = () => avisar("No se pudo reproducir el video. Revisá el link o que sea mp4/webm.", "error");
+  video.src = url;
+  video.play().catch(() => {});
+}
+
+function abrirModalReproductor(titulo, descripcion) {
+  document.getElementById("modal-video-titulo").textContent = titulo;
+  document.getElementById("modal-video-desc").textContent = descripcion || "";
+  document.getElementById("modal-video").classList.remove("oculto");
+}
+
+function reproducirEpisodio(serieId, ti, ei) {
+  const serie = catalogo.find((s) => s.id === serieId);
+  if (!serie) return;
+  const temp = serie.temporadas[ti];
+  const ep = temp && temp.episodios[ei];
+  if (!ep) return;
+
+  reproduccion = { tipo: "serie", serieId, ti, ei };
+  abrirModalReproductor(`${serie.nombre} — T${temp.numero} · E${ep.numero}: ${ep.titulo}`, ep.descripcion);
+  cargarVideo(ep.video_url);
+}
+
+function reproducirDesdeInicio(serieId) {
+  const serie = catalogo.find((s) => s.id === serieId);
+  if (!serie) return;
+  const ti = serie.temporadas.findIndex((t) => t.episodios.length > 0);
+  if (ti === -1) {
+    avisar("Esta serie todavía no tiene episodios.", "error");
+    return;
+  }
+  reproducirEpisodio(serieId, ti, 0);
+}
+
+function reproducirItem(item) {
+  if (!item.video_url) {
+    avisar("Todavía no tiene video cargado.", "error");
+    return;
+  }
+  reproduccion = { tipo: "item" };
+  abrirModalReproductor(item.nombre, item.descripcion);
+  cargarVideo(item.video_url);
+}
+
+function reproducirCanal(id) {
+  const canal = canalesCache.find((c) => c.id === id);
+  if (!canal) return;
+  reproduccion = { tipo: "canal" };
+  abrirModalReproductor(canal.nombre, "En vivo");
+  cargarVideo(canal.url);
+}
+
+function cerrarModal() {
+  detenerReproduccion();
+  document.getElementById("modal-video").classList.add("oculto");
+
+  // si la reproducción saltó a otra serie sola, el detalle abierto se actualiza a esa serie
+  const detalleAbierto = !document.getElementById("modal-detalle").classList.contains("oculto");
+  if (detalleAbierto && reproduccion && reproduccion.tipo === "serie" && reproduccion.serieId !== detalleSerieId) {
+    abrirDetalleSerie(reproduccion.serieId);
+  }
+}
+
+function cerrarModalSiFondo(evento) {
+  if (evento.target.id === "modal-video") cerrarModal();
+}
+
+// ---------- Fin de episodio: siguiente o serie aleatoria ----------
+function siguienteEpisodio(serie, ti, ei) {
+  const temp = serie.temporadas[ti];
+  if (temp && ei + 1 < temp.episodios.length) return { ti, ei: ei + 1 };
+  for (let k = ti + 1; k < serie.temporadas.length; k++) {
+    if (serie.temporadas[k].episodios.length) return { ti: k, ei: 0 };
+  }
+  return null;
+}
+
+function elegirSerieAleatoria(excluirId) {
+  const candidatas = catalogo.filter(
+    (s) => s.categoria === "serie" && s.id !== excluirId && s.temporadas.some((t) => t.episodios.length > 0)
+  );
+  if (!candidatas.length) return null;
+  return candidatas[Math.floor(Math.random() * candidatas.length)];
+}
+
+function alTerminar() {
+  if (!reproduccion || reproduccion.tipo !== "serie") return;
+  const serie = catalogo.find((s) => s.id === reproduccion.serieId);
+  if (!serie) return;
+
+  const sig = siguienteEpisodio(serie, reproduccion.ti, reproduccion.ei);
+  if (sig) {
+    const t = serie.temporadas[sig.ti];
+    const e = t.episodios[sig.ei];
+    mostrarCuenta("Siguiente episodio", `T${t.numero} · E${e.numero} — ${e.titulo}`, () =>
+      reproducirEpisodio(serie.id, sig.ti, sig.ei)
+    );
+    return;
+  }
+
+  const otra = elegirSerieAleatoria(serie.id);
+  if (otra) {
+    mostrarCuenta(`Terminaste ${serie.nombre}`, `Ahora te ponemos: ${otra.nombre}`, () =>
+      reproducirDesdeInicio(otra.id)
+    );
+  } else {
+    mostrarCuenta(`Terminaste ${serie.nombre}`, "Todavía no hay otra serie para recomendarte.", null);
+  }
+}
+
+function mostrarCuenta(titulo, sub, accion) {
+  limpiarCuenta();
+  document.getElementById("fin-titulo").textContent = titulo;
+  document.getElementById("fin-sub").textContent = sub;
+  const cuenta = document.getElementById("fin-cuenta");
+  const verAhora = document.getElementById("fin-ver-ahora");
+  document.getElementById("fin-overlay").classList.remove("oculto");
+  accionPendiente = accion;
+  cuenta.classList.toggle("oculto", !accion);
+  verAhora.classList.toggle("oculto", !accion);
+  if (!accion) return;
+
+  let restante = 3;
+  cuenta.textContent = restante;
+  cuentaTimer = setInterval(() => {
+    restante--;
+    if (restante <= 0) saltarCuenta();
+    else cuenta.textContent = restante;
+  }, 1000);
+}
+
+function limpiarCuenta() {
+  clearInterval(cuentaTimer);
+  cuentaTimer = null;
+  accionPendiente = null;
+  const ov = document.getElementById("fin-overlay");
+  if (ov) ov.classList.add("oculto");
+}
+
+function saltarCuenta() {
+  const accion = accionPendiente;
+  limpiarCuenta();
+  if (accion) accion();
+}
+
+function cancelarCuenta() {
+  limpiarCuenta();
+}
+
+// ============================================================
+// SUBIR CONTENIDO
+// ============================================================
+function camposVideoHTML(p) {
+  return `
+    <input class="campo" id="${p}-video-url" placeholder="Link del video (mp4 o YouTube)">
+    <div class="texto-ayuda">…o subí un archivo desde tu dispositivo (mp4 o webm, hasta 50 MB):</div>
+    <input type="file" accept="video/*" class="campo" id="${p}-video-archivo">
+    <div class="progreso oculto" id="${p}-progreso">
+      <div class="progreso-barra" id="${p}-progreso-barra"></div>
+      <div class="progreso-texto" id="${p}-progreso-texto">0%</div>
+    </div>`;
+}
+
+function opcionesSeriesHTML() {
+  return catalogo
+    .filter((i) => i.categoria === "serie")
+    .map((s) => `<option value="${s.id}">${escapeHTML(s.nombre)}</option>`)
+    .join("");
+}
+
+function formularioSubir() {
   return `
     <div class="form-box">
-      <h3>Crear serie nueva (opcional)</h3>
-      <input class="campo" id="nueva-serie-nombre" placeholder="Nombre de la serie">
-      <input type="file" accept="image/*" class="campo" id="nueva-serie-imagen">
-      <button class="btn" onclick="crearSerie()">Crear serie</button>
+      <h3>Crear contenido nuevo</h3>
+      <select class="campo" id="nuevo-categoria" onchange="cambiarCategoriaForm()">
+        <option value="serie">Serie (con temporadas y episodios)</option>
+        <option value="pelicula">Película</option>
+        <option value="obra">Obra de teatro</option>
+      </select>
+      <input class="campo" id="nuevo-nombre" placeholder="Nombre">
+      <input class="campo" id="nuevo-descripcion" placeholder="Descripción (opcional)">
+      <div class="texto-ayuda">Portada (opcional):</div>
+      <input type="file" accept="image/*" class="campo" id="nuevo-imagen">
+      <div id="nuevo-video-campos" class="oculto">${camposVideoHTML("nuevo")}</div>
+      <button class="btn" id="btn-crear-contenido" onclick="crearContenido()">Crear serie</button>
+      <div class="mensaje-error" id="error-nuevo"></div>
     </div>
 
     <div class="form-box">
-      <h3>Sumar episodio</h3>
+      <h3>Sumar episodio a una serie</h3>
       <select class="campo" id="episodio-serie">
         <option value="">Elegí una serie</option>
-        ${opcionesSeries}
+        ${opcionesSeriesHTML()}
       </select>
       <div class="form-row">
         <input class="campo" id="episodio-temporada" type="number" min="1" placeholder="N° de temporada">
@@ -1056,9 +1776,8 @@ function formularioEpisodio(series) {
       </div>
       <input class="campo" id="episodio-titulo" placeholder="Título del episodio">
       <input class="campo" id="episodio-descripcion" placeholder="Descripción (opcional)">
-      <input class="campo" id="episodio-video" placeholder="Link del video (mp4 o YouTube)">
-      <div class="texto-ayuda">Pegá el link directo al video o de YouTube.</div>
-      <button class="btn" onclick="crearEpisodio()">Sumar episodio</button>
+      ${camposVideoHTML("episodio")}
+      <button class="btn" id="btn-guardar-episodio" onclick="crearEpisodio()">Guardar episodio</button>
       <div class="mensaje-error" id="error-episodio"></div>
     </div>
   `;
@@ -1071,59 +1790,172 @@ function formularioCanal() {
       <input class="campo" id="canal-nombre" placeholder="Nombre del canal">
       <input class="campo" id="canal-url" placeholder="Link del stream">
       <input type="file" accept="image/*" class="campo" id="canal-imagen">
-      <button class="btn" onclick="crearCanal()">Sumar canal</button>
+      <button class="btn" id="btn-guardar-canal" onclick="crearCanal()">Guardar canal</button>
       <div class="mensaje-error" id="error-canal"></div>
     </div>
   `;
 }
 
-async function crearSerie() {
-  const nombre = document.getElementById("nueva-serie-nombre").value.trim();
-  if (!nombre) return;
-  const inputImg = document.getElementById("nueva-serie-imagen");
+function cambiarCategoriaForm() {
+  const cat = document.getElementById("nuevo-categoria").value;
+  document.getElementById("nuevo-video-campos").classList.toggle("oculto", cat === "serie");
+  document.getElementById("btn-crear-contenido").textContent =
+    cat === "serie" ? "Crear serie" : cat === "pelicula" ? "Guardar película" : "Guardar obra de teatro";
+}
 
-  let imagenB64 = null;
-  if (inputImg.files && inputImg.files[0]) {
-    imagenB64 = await resizeImagenABase64(inputImg.files[0], 400);
+function actualizarSelectSeries(seleccionar) {
+  const select = document.getElementById("episodio-serie");
+  if (!select) return;
+  const previo = select.value;
+  select.innerHTML = `<option value="">Elegí una serie</option>${opcionesSeriesHTML()}`;
+  if (seleccionar) select.value = seleccionar;
+  else if (previo) select.value = previo;
+}
+
+async function refrescarCatalogo() {
+  try {
+    catalogo = await obtenerCatalogo(usuarioActual.tipo === "pagado");
+  } catch (err) {
+    console.error(err);
+    avisar("No se pudo actualizar el catálogo.", "error");
+    return;
+  }
+  renderContenido();
+  renderMiLista();
+  actualizarSelectSeries();
+  const buscador = document.getElementById("buscador");
+  if (buscador && buscador.value.trim()) buscar();
+}
+
+// ---------- Subida de archivos a Supabase Storage ----------
+function subirArchivo(archivo, carpeta, alProgreso) {
+  return new Promise((resolve, reject) => {
+    const ext = (archivo.name.split(".").pop() || "mp4").toLowerCase().replace(/[^a-z0-9]/g, "") || "mp4";
+    const ruta = `${carpeta}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+    const datos = new FormData();
+    datos.append("cacheControl", "3600");
+    datos.append("", archivo);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${ruta}`);
+    xhr.setRequestHeader("Authorization", "Bearer " + SUPABASE_KEY);
+    xhr.setRequestHeader("apikey", SUPABASE_KEY);
+    xhr.setRequestHeader("x-upsert", "false");
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && alProgreso) alProgreso(Math.round((e.loaded / e.total) * 100));
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(`${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${ruta}`);
+      } else {
+        let detalle = xhr.responseText;
+        try { detalle = JSON.parse(xhr.responseText).message || detalle; } catch (e) {}
+        reject(new Error("No se pudo subir el archivo: " + detalle));
+      }
+    };
+    xhr.onerror = () => reject(new Error("No se pudo subir el archivo (error de red)."));
+    xhr.send(datos);
+  });
+}
+
+function mostrarProgreso(p, visible) {
+  const caja = document.getElementById(p + "-progreso");
+  if (!caja) return;
+  caja.classList.toggle("oculto", !visible);
+  if (visible) actualizarProgreso(p, 0);
+}
+
+function actualizarProgreso(p, pct) {
+  const barra = document.getElementById(p + "-progreso-barra");
+  const texto = document.getElementById(p + "-progreso-texto");
+  if (barra) barra.style.width = pct + "%";
+  if (texto) texto.textContent = pct >= 100 ? "Procesando…" : "Subiendo… " + pct + "%";
+}
+
+// devuelve la URL final: el archivo subido (si hay) o el link pegado
+async function resolverVideo(prefijo, carpeta) {
+  const url = document.getElementById(prefijo + "-video-url").value.trim();
+  const input = document.getElementById(prefijo + "-video-archivo");
+  const archivo = input.files && input.files[0];
+  if (!archivo) return url;
+
+  const extValida = /\.(mp4|webm|mov|m4v|ogv)$/i.test(archivo.name);
+  if (!archivo.type.startsWith("video/") && !extValida) {
+    throw new Error("El archivo tiene que ser un video (mp4 o webm).");
+  }
+  if (archivo.size > MAX_BYTES) {
+    throw new Error("El archivo pesa más de 50 MB. Usá un link para videos más largos.");
   }
 
-  const { error } = await sb.from("meaker_series").insert({
-    nombre: nombre,
-    imagen: imagenB64,
-    creado_por: usuarioActual ? usuarioActual.id : null,
-  });
+  mostrarProgreso(prefijo, true);
+  try {
+    return await subirArchivo(archivo, carpeta, (pct) => actualizarProgreso(prefijo, pct));
+  } finally {
+    mostrarProgreso(prefijo, false);
+  }
+}
 
-  if (error) {
-    console.error(error);
-    alert("Hubo un error creando la serie.");
+async function crearContenido() {
+  const categoria = document.getElementById("nuevo-categoria").value;
+  const nombre = document.getElementById("nuevo-nombre").value.trim();
+  const descripcion = document.getElementById("nuevo-descripcion").value.trim();
+  const inputImg = document.getElementById("nuevo-imagen");
+  limpiarError("error-nuevo");
+
+  if (!nombre) {
+    mostrarError("error-nuevo", "Poné un nombre.");
     return;
   }
 
-  document.getElementById("nueva-serie-nombre").value = "";
-  inputImg.value = "";
-  await actualizarSelectSeries();
-  alert("Serie creada. Ya la podés elegir en 'Sumar episodio'.");
-}
+  const btn = document.getElementById("btn-crear-contenido");
+  btn.disabled = true;
+  btn.textContent = "Guardando…";
 
-async function actualizarSelectSeries() {
-  const select = document.getElementById("episodio-serie");
-  if (!select) return;
+  try {
+    let imagen = null;
+    if (inputImg.files && inputImg.files[0]) imagen = await resizeImagenABase64(inputImg.files[0], 400);
 
-  const valorActual = select.value;
-  const { data: series } = await sb
-    .from("meaker_series")
-    .select("*")
-    .order("creado_en", { ascending: false });
+    let videoUrl = null;
+    if (categoria !== "serie") {
+      videoUrl = await resolverVideo("nuevo", categoria === "pelicula" ? "peliculas" : "obras");
+      if (!videoUrl) throw new Error("Poné el link del video o subí un archivo.");
+    }
 
-  const opciones = (series || [])
-    .map((s) => `<option value="${s.id}">${escapeHTML(s.nombre)}</option>`)
-    .join("");
-  select.innerHTML = `<option value="">Elegí una serie</option>${opciones}`;
+    const { data, error } = await sb
+      .from("meaker_series")
+      .insert({
+        nombre: nombre,
+        descripcion: descripcion || null,
+        imagen: imagen,
+        categoria: categoria,
+        video_url: videoUrl,
+        publicado: true,
+        creado_por: usuarioActual.id,
+      })
+      .select()
+      .single();
+    if (error) throw error;
 
-  if (valorActual && series && series.some((s) => s.id === valorActual)) {
-    select.value = valorActual;
-  } else if (series && series.length > 0) {
-    select.value = series[0].id;
+    document.getElementById("nuevo-nombre").value = "";
+    document.getElementById("nuevo-descripcion").value = "";
+    inputImg.value = "";
+    document.getElementById("nuevo-video-url").value = "";
+    document.getElementById("nuevo-video-archivo").value = "";
+
+    await refrescarCatalogo();
+    if (categoria === "serie") {
+      actualizarSelectSeries(data.id);
+      avisar("Serie creada. Ya la podés elegir para sumarle episodios.", "ok");
+    } else {
+      avisar(categoria === "pelicula" ? "Película guardada." : "Obra de teatro guardada.", "ok");
+    }
+  } catch (err) {
+    console.error(err);
+    mostrarError("error-nuevo", mensajeDeError(err));
+  } finally {
+    btn.disabled = false;
+    cambiarCategoriaForm();
   }
 }
 
@@ -1133,57 +1965,67 @@ async function crearEpisodio() {
   const numEpisodio = parseInt(document.getElementById("episodio-numero").value, 10);
   const titulo = document.getElementById("episodio-titulo").value.trim();
   const descripcion = document.getElementById("episodio-descripcion").value.trim();
-  const video = document.getElementById("episodio-video").value.trim();
-
   limpiarError("error-episodio");
 
-  if (!serieId || !numTemporada || !numEpisodio || !titulo || !video) {
-    mostrarError("error-episodio", "Completá todos los campos obligatorios.");
+  if (!serieId || !(numTemporada > 0) || !(numEpisodio > 0) || !titulo) {
+    mostrarError("error-episodio", "Elegí la serie y completá temporada, episodio y título.");
     return;
   }
 
+  const btn = document.getElementById("btn-guardar-episodio");
+  btn.disabled = true;
+  btn.textContent = "Guardando…";
+
   try {
-    let { data: temporadaExistente } = await sb
+    const video = await resolverVideo("episodio", "episodios");
+    if (!video) throw new Error("Poné el link del video o subí un archivo.");
+
+    const { data: existente, error: errorTemporada } = await sb
       .from("meaker_temporadas")
-      .select("*")
+      .select("id")
       .eq("serie_id", serieId)
       .eq("numero", numTemporada)
       .limit(1);
+    if (errorTemporada) throw errorTemporada;
 
     let temporadaId;
-    if (temporadaExistente && temporadaExistente.length > 0) {
-      temporadaId = temporadaExistente[0].id;
+    if (existente && existente.length > 0) {
+      temporadaId = existente[0].id;
     } else {
-      const { data: nuevaTemporada, error } = await sb
+      const { data: nueva, error } = await sb
         .from("meaker_temporadas")
         .insert({ serie_id: serieId, numero: numTemporada })
         .select()
         .single();
       if (error) throw error;
-      temporadaId = nuevaTemporada.id;
+      temporadaId = nueva.id;
     }
 
-    await sb.from("meaker_episodios").insert({
+    const { error: errorEpisodio } = await sb.from("meaker_episodios").insert({
       temporada_id: temporadaId,
       numero: numEpisodio,
       titulo: titulo,
-      descripcion: descripcion,
+      descripcion: descripcion || null,
       video_url: video,
       publicado: true,
-      creado_por: usuarioActual ? usuarioActual.id : null,
+      creado_por: usuarioActual.id,
     });
+    if (errorEpisodio) throw errorEpisodio;
 
-    const campoTitulo = document.getElementById("episodio-titulo");
-    const campoDescripcion = document.getElementById("episodio-descripcion");
-    const campoVideo = document.getElementById("episodio-video");
-    if (campoTitulo) campoTitulo.value = "";
-    if (campoDescripcion) campoDescripcion.value = "";
-    if (campoVideo) campoVideo.value = "";
-    alert("Episodio agregado correctamente.");
-    recargarPanelActual();
+    document.getElementById("episodio-titulo").value = "";
+    document.getElementById("episodio-descripcion").value = "";
+    document.getElementById("episodio-video-url").value = "";
+    document.getElementById("episodio-video-archivo").value = "";
+    document.getElementById("episodio-numero").value = numEpisodio + 1; // listo para cargar el siguiente
+
+    await refrescarCatalogo();
+    avisar("Episodio guardado.", "ok");
   } catch (err) {
     console.error(err);
-    mostrarError("error-episodio", "Hubo un error al guardar el episodio.");
+    mostrarError("error-episodio", mensajeDeError(err));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Guardar episodio";
   }
 }
 
@@ -1191,7 +2033,6 @@ async function crearCanal() {
   const nombre = document.getElementById("canal-nombre").value.trim();
   const url = document.getElementById("canal-url").value.trim();
   const inputImg = document.getElementById("canal-imagen");
-
   limpiarError("error-canal");
 
   if (!nombre || !url) {
@@ -1199,77 +2040,38 @@ async function crearCanal() {
     return;
   }
 
-  let imagenB64 = null;
-  if (inputImg.files && inputImg.files[0]) {
-    imagenB64 = await resizeImagenABase64(inputImg.files[0], 400);
+  const btn = document.getElementById("btn-guardar-canal");
+  btn.disabled = true;
+  btn.textContent = "Guardando…";
+
+  try {
+    let imagen = null;
+    if (inputImg.files && inputImg.files[0]) imagen = await resizeImagenABase64(inputImg.files[0], 400);
+
+    const { error } = await sb.from("meaker_canales").insert({
+      nombre: nombre,
+      url: url,
+      imagen: imagen,
+      creado_por: usuarioActual.id,
+    });
+    if (error) throw error;
+
+    document.getElementById("canal-nombre").value = "";
+    document.getElementById("canal-url").value = "";
+    inputImg.value = "";
+
+    canalesCache = await obtenerCanales();
+    renderContenido();
+    avisar("Canal guardado.", "ok");
+  } catch (err) {
+    console.error(err);
+    mostrarError("error-canal", mensajeDeError(err));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Guardar canal";
   }
-
-  await sb.from("meaker_canales").insert({
-    nombre: nombre,
-    url: url,
-    imagen: imagenB64,
-    creado_por: usuarioActual ? usuarioActual.id : null,
-  });
-
-  const campoNombre = document.getElementById("canal-nombre");
-  const campoUrl = document.getElementById("canal-url");
-  if (campoNombre) campoNombre.value = "";
-  if (campoUrl) campoUrl.value = "";
-  alert("Canal agregado correctamente.");
-  recargarPanelActual();
 }
 
-function recargarPanelActual() {
-  if (!document.getElementById("screen-jefe-panel").classList.contains("oculto")) {
-    cargarPanelJefe();
-  } else if (!document.getElementById("screen-companero-panel").classList.contains("oculto")) {
-    cargarPanelCompanero();
-  } else if (!document.getElementById("screen-pagado-panel").classList.contains("oculto")) {
-    cargarPanelPagado();
-  }
-}
-
-// ============================================================
-// MODAL DE VIDEO
-// ============================================================
-function abrirVideo(titulo, descripcion, url) {
-  document.getElementById("modal-video-titulo").textContent = titulo;
-  document.getElementById("modal-video-desc").textContent = descripcion || "";
-
-  const video = document.getElementById("video-player");
-  const iframe = document.getElementById("video-iframe");
-
-  const esYoutube = /youtube\.com|youtu\.be/.test(url);
-
-  if (esYoutube) {
-    const idMatch = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
-    const idVideo = idMatch ? idMatch[1] : "";
-    iframe.src = "https://www.youtube.com/embed/" + idVideo;
-    iframe.classList.remove("oculto");
-    video.classList.add("oculto");
-    video.pause();
-    video.src = "";
-  } else {
-    video.src = url;
-    video.classList.remove("oculto");
-    iframe.classList.add("oculto");
-    iframe.src = "";
-  }
-
-  document.getElementById("modal-video").classList.remove("oculto");
-}
-
-function cerrarModal() {
-  document.getElementById("modal-video").classList.add("oculto");
-  const video = document.getElementById("video-player");
-  video.pause();
-  video.src = "";
-  document.getElementById("video-iframe").src = "";
-}
-
-function cerrarModalSiFondo(evento) {
-  if (evento.target.id === "modal-video") cerrarModal();
-}
 </script>
 </body>
 </html>
