@@ -132,6 +132,7 @@
   .etiqueta.aprobado{ background:rgba(76,175,80,0.18); color:var(--exito); }
   .etiqueta.rechazado{ background:rgba(229,72,77,0.18); color:var(--error); }
   .etiqueta.pagado{ background:rgba(122,122,255,0.18); color:#9a9aff; }
+  .etiqueta.cat{ background:rgba(255,117,31,0.18); color:var(--naranja); }
   .etiqueta.inactivo{ background:rgba(184,172,163,0.18); color:var(--texto-tenue); }
 
   .form-box{
@@ -195,7 +196,9 @@
     </div>
 
     <div id="tab-contenido" class="oculto">
-      <div class="seccion-titulo">Series y episodios</div>
+      <div class="seccion-titulo">Series, películas y obras de teatro</div>
+      <div class="lista" id="lista-series"></div>
+      <div class="seccion-titulo">Episodios</div>
       <div class="lista" id="lista-episodios"></div>
       <div class="seccion-titulo">Canales en vivo</div>
       <div class="lista" id="lista-canales"></div>
@@ -371,20 +374,38 @@ async function reactivarUsuario(id) {
 
 async function eliminarUsuario(id) {
   if (!confirm("¿Seguro que querés eliminar este usuario? No se puede deshacer.")) return;
+  const { data: filas } = await sb.from("meaker_usuarios").select("gmail").eq("id", id).limit(1);
   await sb.from("meaker_usuarios").delete().eq("id", id);
+  if (filas && filas[0]) await sb.from("meaker_mi_lista").delete().eq("propietario", filas[0].gmail);
   await cargarTodo();
 }
 
 // ============================================================
-// CONTENIDO (episodios y canales)
+// CONTENIDO (series / películas / obras, episodios y canales)
 // ============================================================
+const BUCKET = "meaker-media";
+const PREFIJO_PUBLICO = SUPABASE_URL + "/storage/v1/object/public/" + BUCKET + "/";
+const NOMBRE_CATEGORIA = { serie: "Serie", pelicula: "Película", obra: "Obra de teatro" };
+
+// borra de Supabase Storage los archivos que se habían subido (los links externos se ignoran)
+async function borrarArchivosDeUrls(urls) {
+  const rutas = (urls || [])
+    .filter((u) => u && u.startsWith(PREFIJO_PUBLICO))
+    .map((u) => decodeURIComponent(u.slice(PREFIJO_PUBLICO.length)));
+  if (!rutas.length) return;
+  const { error } = await sb.storage.from(BUCKET).remove(rutas);
+  if (error) console.warn("No se pudieron borrar los archivos:", error.message);
+}
+
 async function cargarContenido() {
+  const contSeries = document.getElementById("lista-series");
   const contEp = document.getElementById("lista-episodios");
   const contCanales = document.getElementById("lista-canales");
+  contSeries.innerHTML = "<p class='vacio'>Cargando…</p>";
   contEp.innerHTML = "<p class='vacio'>Cargando…</p>";
   contCanales.innerHTML = "<p class='vacio'>Cargando…</p>";
 
-  const { data: series } = await sb.from("meaker_series").select("*");
+  const { data: series } = await sb.from("meaker_series").select("*").order("creado_en", { ascending: false });
   const { data: temporadas } = await sb.from("meaker_temporadas").select("*");
   const { data: episodios } = await sb.from("meaker_episodios").select("*").order("creado_en", { ascending: false });
   const { data: canales } = await sb.from("meaker_canales").select("*").order("creado_en", { ascending: false });
@@ -394,6 +415,43 @@ async function cargarContenido() {
   const mapaTemporadas = {};
   (temporadas || []).forEach((t) => (mapaTemporadas[t.id] = t));
 
+  // ----- series, películas y obras -----
+  if (!series || series.length === 0) {
+    contSeries.innerHTML = "<div class='vacio'>Todavía no hay series, películas ni obras.</div>";
+  } else {
+    contSeries.innerHTML = series
+      .map((s) => {
+        const categoria = s.categoria || "serie";
+        let detalle;
+        if (categoria === "serie") {
+          const temps = (temporadas || []).filter((t) => t.serie_id === s.id);
+          const ids = new Set(temps.map((t) => t.id));
+          const nEp = (episodios || []).filter((e) => ids.has(e.temporada_id)).length;
+          detalle = temps.length + " temporada" + (temps.length !== 1 ? "s" : "") + " · " + nEp + " episodio" + (nEp !== 1 ? "s" : "");
+        } else {
+          detalle = s.video_url || "Sin video";
+        }
+        return `
+      <div class="fila">
+        <div class="info">
+          <div class="principal">${escapeHTML(s.nombre)}
+            <span class="etiqueta cat">${NOMBRE_CATEGORIA[categoria] || categoria}</span>
+            ${s.publicado === false ? '<span class="etiqueta rechazado">oculto</span>' : ""}
+          </div>
+          <div class="secundario">${escapeHTML(detalle)}</div>
+        </div>
+        <div class="acciones">
+          <button class="btn-chico" onclick="ocultarMostrarSerie('${s.id}', ${s.publicado !== false})">
+            ${s.publicado !== false ? "Ocultar" : "Publicar"}
+          </button>
+          <button class="btn-chico rojo" onclick="eliminarSerie('${s.id}')">Borrar</button>
+        </div>
+      </div>`;
+      })
+      .join("");
+  }
+
+  // ----- episodios -----
   if (!episodios || episodios.length === 0) {
     contEp.innerHTML = "<div class='vacio'>Todavía no hay episodios cargados.</div>";
   } else {
@@ -422,6 +480,7 @@ async function cargarContenido() {
       .join("");
   }
 
+  // ----- canales -----
   if (!canales || canales.length === 0) {
     contCanales.innerHTML = "<div class='vacio'>Todavía no hay canales en vivo.</div>";
   } else {
@@ -445,6 +504,34 @@ async function cargarContenido() {
   }
 }
 
+async function ocultarMostrarSerie(id, publicadoActual) {
+  await sb.from("meaker_series").update({ publicado: !publicadoActual }).eq("id", id);
+  await cargarContenido();
+}
+
+async function eliminarSerie(id) {
+  if (!confirm("¿Borrar esto con todas sus temporadas y episodios? No se puede deshacer.")) return;
+
+  // juntamos los archivos subidos antes de borrar la fila (los episodios se borran en cascada)
+  const urls = [];
+  const { data: filas } = await sb.from("meaker_series").select("video_url").eq("id", id).limit(1);
+  if (filas && filas[0] && filas[0].video_url) urls.push(filas[0].video_url);
+  const { data: temps } = await sb.from("meaker_temporadas").select("id").eq("serie_id", id);
+  const idsTemp = (temps || []).map((t) => t.id);
+  if (idsTemp.length) {
+    const { data: eps } = await sb.from("meaker_episodios").select("video_url").in("temporada_id", idsTemp);
+    (eps || []).forEach((e) => e.video_url && urls.push(e.video_url));
+  }
+
+  const { error } = await sb.from("meaker_series").delete().eq("id", id);
+  if (error) {
+    alert("No se pudo borrar: " + error.message);
+    return;
+  }
+  await borrarArchivosDeUrls(urls);
+  await cargarTodo();
+}
+
 async function ocultarMostrarEpisodio(id, publicadoActual) {
   await sb.from("meaker_episodios").update({ publicado: !publicadoActual }).eq("id", id);
   await cargarContenido();
@@ -452,7 +539,13 @@ async function ocultarMostrarEpisodio(id, publicadoActual) {
 
 async function eliminarEpisodio(id) {
   if (!confirm("¿Borrar este episodio? No se puede deshacer.")) return;
-  await sb.from("meaker_episodios").delete().eq("id", id);
+  const { data: filas } = await sb.from("meaker_episodios").select("video_url").eq("id", id).limit(1);
+  const { error } = await sb.from("meaker_episodios").delete().eq("id", id);
+  if (error) {
+    alert("No se pudo borrar: " + error.message);
+    return;
+  }
+  if (filas && filas[0]) await borrarArchivosDeUrls([filas[0].video_url]);
   await cargarContenido();
 }
 
@@ -509,6 +602,7 @@ async function mandarNotificacion() {
     error.style.color = "";
   }, 2000);
 }
+
 </script>
 </body>
 </html>
